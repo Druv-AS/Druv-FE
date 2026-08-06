@@ -52,7 +52,7 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
     }}>
       <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
         
-        {/* TIER 1: Top Header Bar (Brand Logo & User Profile Actions) */}
+        {/* TIER 1: Clean Top Header Bar (Brand Logo & Logout Action) */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -60,11 +60,11 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
           padding: '12px 20px',
           width: '100%'
         }}>
-          {/* Brand Logo & Target Course */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Brand Logo & Name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
-              width: '38px',
-              height: '38px',
+              width: '36px',
+              height: '36px',
               borderRadius: '10px',
               background: 'linear-gradient(135deg, #0284c7 0%, #3b82f6 100%)',
               display: 'flex',
@@ -79,26 +79,14 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
               Dh
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>
-                  Dhruv
-                </h1>
-                <span style={{ fontSize: '0.68rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                  {user?.course || 'NEET 2027 Repeater'}
-                </span>
-              </div>
-              <p style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>
-                {user?.name ? `${user.name} • Level ${user.level || 12} Scholar` : 'Student Readiness Engine'}
-              </p>
+              <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>
+                Dhruv
+              </h1>
             </div>
           </div>
 
-          {/* User Streak & Logout Actions */}
+          {/* Logout Action */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span className="badge badge-green" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
-              <Award size={14} /> {user?.streak || 47} Day Streak
-            </span>
-
             <button
               onClick={onLogout}
               title="Switch Account / Logout"
@@ -106,16 +94,18 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
                 color: '#94a3b8',
-                padding: '8px',
+                padding: '8px 12px',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '36px'
+                gap: '6px',
+                fontSize: '0.8rem',
+                fontWeight: 600
               }}
             >
-              <LogOut size={16} />
+              <LogOut size={15} />
+              <span>Logout</span>
             </button>
           </div>
         </div>

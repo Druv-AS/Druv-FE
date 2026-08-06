@@ -78,17 +78,16 @@ export default function GamifiedDashboard({ user, setActiveTab }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', maxWidth: '1140px', margin: '0 auto' }}>
       
-      {/* Gamification Header: XP & Level Bar */}
+      {/* Dedicated Welcome & Exam Status Hero Card */}
       <div className="glass-card" style={{
-        padding: '20px 24px',
+        padding: '24px 28px',
         background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
         border: '1px solid rgba(56, 189, 248, 0.3)',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justify: 'center',
         textAlign: 'center',
-        flexWrap: 'wrap',
-        gap: '16px',
+        gap: '20px',
         position: 'relative'
       }}>
         {showXpAnim && (
@@ -104,65 +103,74 @@ export default function GamifiedDashboard({ user, setActiveTab }) {
             borderRadius: '20px',
             boxShadow: '0 0 20px #34d399',
             animation: 'bounce 0.6s ease',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            zIndex: 10
           }}>
             +50 XP STREAK BONUS! 🔥
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', width: '100%' }}>
-          <div style={{
-            width: '54px',
-            height: '54px',
-            borderRadius: '14px',
-            background: 'linear-gradient(135deg, #0284c7 0%, #3b82f6 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justify: 'center',
-            color: '#fff',
-            fontWeight: 800,
-            fontSize: '1.3rem',
-            boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)',
-            flexShrink: 0
-          }}>
-            L{level}
+        {/* Welcome Greeting & Scholar Avatar */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, #0284c7 0%, #3b82f6 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'center',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '1.3rem',
+              boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)',
+              flexShrink: 0
+            }}>
+              L{level}
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: '#f8fafc' }}>
+                  Welcome back, {user?.name || 'Aarav Sharma'} 👋
+                </h2>
+                <span className="badge badge-green">Level {level} Scholar</span>
+              </div>
+              <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '2px' }}>
+                Target: <strong>{user?.course || 'NEET 2027 Repeater'}</strong> • Student Readiness Engine
+              </p>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: '#f8fafc' }}>
-                {user?.name || 'Aarav Sharma'}
-              </h2>
-              <span className="badge badge-green">Level {level} Scholar</span>
+          {/* Level Progress Meter */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '4px', flexWrap: 'wrap' }}>
+            <div style={{ width: '220px', maxWidth: '100%', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${xpProgress}%`, height: '100%', background: 'linear-gradient(90deg, #38bdf8, #34d399)', borderRadius: '4px' }} />
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '6px', flexWrap: 'wrap' }}>
-              <div style={{ width: '180px', maxWidth: '100%', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: `${xpProgress}%`, height: '100%', background: 'linear-gradient(90deg, #38bdf8, #34d399)', borderRadius: '4px' }} />
-              </div>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>
-                {xp} / {nextLevelXp} XP
-              </span>
-            </div>
+            <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>
+              {xp} / {nextLevelXp} XP
+            </span>
           </div>
         </div>
 
-        {/* Badges & Career Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', width: '100%' }}>
-          <span className="badge badge-orange" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
-            <Flame size={15} color="#f59e0b" /> {streak}-Day Streak Active
+        {/* Streak & Career Mode Switcher Row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', width: '100%', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <span className="badge badge-orange" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+            <Flame size={16} color="#f59e0b" /> {streak}-Day Unbroken Streak Active
           </span>
 
-          <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, paddingLeft: '8px' }}>Career Target:</span>
             <button
               onClick={() => setSelectedCareer('NEET')}
               style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
+                padding: '6px 14px',
+                borderRadius: '8px',
                 border: 'none',
-                background: selectedCareer === 'NEET' ? 'rgba(52, 211, 153, 0.2)' : 'transparent',
-                color: selectedCareer === 'NEET' ? '#34d399' : '#94a3b8',
-                fontSize: '0.78rem',
+                background: selectedCareer === 'NEET' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
+                color: selectedCareer === 'NEET' ? '#fff' : '#94a3b8',
+                fontSize: '0.8rem',
                 fontWeight: 700,
                 cursor: 'pointer'
               }}
@@ -172,12 +180,12 @@ export default function GamifiedDashboard({ user, setActiveTab }) {
             <button
               onClick={() => setSelectedCareer('JEE')}
               style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
+                padding: '6px 14px',
+                borderRadius: '8px',
                 border: 'none',
-                background: selectedCareer === 'JEE' ? 'rgba(129, 140, 248, 0.2)' : 'transparent',
-                color: selectedCareer === 'JEE' ? '#818cf8' : '#94a3b8',
-                fontSize: '0.78rem',
+                background: selectedCareer === 'JEE' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'transparent',
+                color: selectedCareer === 'JEE' ? '#fff' : '#94a3b8',
+                fontSize: '0.8rem',
                 fontWeight: 700,
                 cursor: 'pointer'
               }}
