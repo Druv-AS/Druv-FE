@@ -52,7 +52,7 @@ export default function App() {
 
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} user={user} onLogout={handleLogout} />
 
-      <main style={{ flex: 1, padding: '32px', maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
+      <main className="main-container">
         {activeTab === 'dashboard' && <GamifiedDashboard user={user} setActiveTab={setActiveTab} />}
         {activeTab === 'timetable' && <AiTimetable />}
         {activeTab === 'heatmap' && <SyllabusHeatmap />}
@@ -63,9 +63,9 @@ export default function App() {
 
       <footer style={{
         textAlign: 'center',
-        padding: '24px',
+        padding: '16px 12px',
         borderTop: '1px solid rgba(255,255,255,0.05)',
-        fontSize: '0.8rem',
+        fontSize: '0.78rem',
         color: '#64748b'
       }}>
         Dhruv Platform • AI Customisable Timetable & Gamified Readiness Engine • Student & Parent Modes

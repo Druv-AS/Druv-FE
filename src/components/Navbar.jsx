@@ -1,7 +1,13 @@
-import React from 'react';
-import { LayoutDashboard, Calendar, Flame, ShieldAlert, Users, ShieldCheck, Award, LogOut } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  LayoutDashboard, Calendar, Flame, ShieldAlert, Users, 
+  ShieldCheck, Award, LogOut, ChevronDown, ChevronUp, Check 
+} from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const navItems = [
     { id: 'dashboard', label: 'Daily Command', icon: LayoutDashboard },
     { id: 'timetable', label: 'AI Timetable', icon: Calendar },
@@ -11,107 +17,261 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
     { id: 'parent', label: 'Parent Portal', icon: ShieldCheck },
   ];
 
+  const currentItem = navItems.find((item) => item.id === activeTab) || navItems[0];
+  const CurrentIcon = currentItem.icon;
+
+  // Close dropdown menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+    setDropdownOpen(false);
+  };
+
   return (
-    <nav style={{
-      display: 'flex',
-      alignItems: 'center',
-      justify: 'space-between',
-      padding: '16px 32px',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
-      background: 'rgba(7, 10, 18, 0.88)',
-      backdropFilter: 'blur(16px)',
+    <header style={{
+      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+      background: 'rgba(7, 10, 18, 0.95)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
       position: 'sticky',
       top: 0,
-      zIndex: 100
+      zIndex: 200
     }}>
-      {/* Brand & User Profile Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+      <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+        
+        {/* TIER 1: Top Header Bar (Brand Logo & User Profile Actions) */}
         <div style={{
-          width: '38px',
-          height: '38px',
-          borderRadius: '10px',
-          background: 'linear-gradient(135deg, #0284c7 0%, #3b82f6 100%)',
           display: 'flex',
           alignItems: 'center',
-          justify: 'center',
-          color: '#fff',
-          fontWeight: 'bold',
-          fontSize: '1.2rem',
-          boxShadow: '0 0 16px rgba(56, 189, 248, 0.3)'
+          justifyContent: 'space-between',
+          padding: '12px 20px',
+          width: '100%'
         }}>
-          Dh
-        </div>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>
-              Dhruv
-            </h1>
-            <span style={{ fontSize: '0.7rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
-              {user?.course || 'NEET 2027'}
-            </span>
+          {/* Brand Logo & Target Course */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #0284c7 0%, #3b82f6 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '1.15rem',
+              boxShadow: '0 0 16px rgba(56, 189, 248, 0.35)',
+              flexShrink: 0
+            }}>
+              Dh
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>
+                  Dhruv
+                </h1>
+                <span style={{ fontSize: '0.68rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                  {user?.course || 'NEET 2027 Repeater'}
+                </span>
+              </div>
+              <p style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>
+                {user?.name ? `${user.name} • Level ${user.level || 12} Scholar` : 'Student Readiness Engine'}
+              </p>
+            </div>
           </div>
-          <p style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '-2px' }}>
-            {user?.name ? `${user.name} • L${user.level || 12} Scholar` : 'Student Readiness Engine'}
-          </p>
-        </div>
-      </div>
 
-      {/* Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
+          {/* User Streak & Logout Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span className="badge badge-green" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
+              <Award size={14} /> {user?.streak || 47} Day Streak
+            </span>
+
             <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={onLogout}
+              title="Switch Account / Logout"
               style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#94a3b8',
+                padding: '8px',
+                borderRadius: '8px',
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                border: 'none',
-                background: isActive ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.22))' : 'transparent',
-                color: isActive ? '#38bdf8' : '#94a3b8',
-                fontWeight: isActive ? 700 : 500,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                outline: 'none'
+                justifyContent: 'center',
+                minHeight: '36px'
               }}
             >
-              <Icon size={16} />
-              {item.label}
+              <LogOut size={16} />
             </button>
-          );
-        })}
-      </div>
+          </div>
+        </div>
 
-      {/* User Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span className="badge badge-green">
-          <Award size={14} /> {user?.streak || 47} Day Streak
-        </span>
-
-        <button
-          onClick={onLogout}
-          title="Switch Account / Logout"
+        {/* TIER 2 (DESKTOP & TABLET VIEW): Dedicated Horizontal Sub-Nav Bar */}
+        <div 
+          className="navbar-desktop-tabs"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: '#94a3b8',
-            padding: '8px',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justify: 'center'
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+            padding: '6px 20px',
+            width: '100%'
           }}
         >
-          <LogOut size={16} />
-        </button>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            overflowX: 'auto',
+            width: '100%',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleTabClick(item.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: isActive ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.22))' : 'transparent',
+                    color: isActive ? '#38bdf8' : '#94a3b8',
+                    fontWeight: isActive ? 700 : 500,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    outline: 'none',
+                    borderBottom: isActive ? '2px solid #38bdf8' : '2px solid transparent'
+                  }}
+                >
+                  <Icon size={16} color={isActive ? '#38bdf8' : '#94a3b8'} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* TIER 2 (MOBILE PHONE VIEW): Dedicated Workspace Dropdown Selector */}
+        <div 
+          className="navbar-mobile-trigger" 
+          style={{ 
+            padding: '0 16px 10px 16px', 
+            width: '100%', 
+            position: 'relative',
+            borderTop: '1px solid rgba(255,255,255,0.06)' 
+          }}
+        >
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+              padding: '10px 14px',
+              marginTop: '8px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(37, 99, 235, 0.2))',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              color: '#38bdf8',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+              outline: 'none',
+              minHeight: '44px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <CurrentIcon size={18} color="#38bdf8" />
+              <span>{currentItem.label}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: '#94a3b8' }}>
+              <span>Switch Module</span>
+              {dropdownOpen ? <ChevronUp size={16} color="#38bdf8" /> : <ChevronDown size={16} color="#38bdf8" />}
+            </div>
+          </button>
+
+          {/* Mobile Dropdown Popover List */}
+          {dropdownOpen && (
+            <div 
+              className="animate-slide-down"
+              style={{
+                position: 'absolute',
+                left: '16px',
+                right: '16px',
+                top: 'calc(100% + 4px)',
+                background: 'rgba(15, 23, 42, 0.98)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                borderRadius: '14px',
+                padding: '6px',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9)',
+                zIndex: 300
+              }}
+            >
+              <div style={{ padding: '8px 12px 6px 12px', fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '4px' }}>
+                Select Active Workspace
+              </div>
+
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleTabClick(item.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      padding: '11px 14px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: isActive ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.25))' : 'transparent',
+                      color: isActive ? '#38bdf8' : '#e2e8f0',
+                      fontWeight: isActive ? 700 : 500,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease',
+                      minHeight: '44px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <Icon size={18} color={isActive ? '#38bdf8' : '#94a3b8'} />
+                      <span>{item.label}</span>
+                    </div>
+                    {isActive && <Check size={18} color="#38bdf8" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
-    </nav>
+    </header>
   );
 }

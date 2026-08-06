@@ -42,34 +42,34 @@ export default function AuthModal({ onLogin }) {
       padding: '20px'
     }}>
       <div className="glass-card" style={{
-        maxWidth: '480px',
+        maxWidth: '460px',
         width: '100%',
-        padding: '36px',
+        padding: '24px 20px',
         background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
         border: '1px solid rgba(56, 189, 248, 0.3)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.8)'
       }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '14px',
+            width: '44px',
+            height: '44px',
+            borderRadius: '12px',
             background: 'linear-gradient(135deg, #0284c7 0%, #3b82f6 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#fff',
             fontWeight: 'bold',
-            fontSize: '1.5rem',
-            margin: '0 auto 12px'
+            fontSize: '1.4rem',
+            margin: '0 auto 10px'
           }}>
             Dh
           </div>
-          <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-heading)', color: '#f8fafc', fontWeight: 800 }}>
+          <h2 style={{ fontSize: '1.45rem', fontFamily: 'var(--font-heading)', color: '#f8fafc', fontWeight: 800 }}>
             Welcome to Dhruv
           </h2>
-          <p style={{ fontSize: '0.875rem', color: '#94a3b8', marginTop: '4px' }}>
+          <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '4px' }}>
             The Readiness Layer for High-Stakes Exam Prep
           </p>
         </div>
@@ -77,25 +77,26 @@ export default function AuthModal({ onLogin }) {
         {/* Role Switcher */}
         <div style={{
           display: 'flex',
-          gap: '8px',
+          flexWrap: 'wrap',
+          gap: '6px',
           background: 'rgba(255,255,255,0.03)',
           padding: '4px',
           borderRadius: '12px',
-          marginBottom: '24px',
+          marginBottom: '20px',
           border: '1px solid rgba(255,255,255,0.08)'
         }}>
           <button
             type="button"
             onClick={() => setRole('STUDENT')}
             style={{
-              flex: 1,
+              flex: '1 1 140px',
               padding: '10px',
               borderRadius: '8px',
               border: 'none',
               background: role === 'STUDENT' ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
               color: role === 'STUDENT' ? '#fff' : '#94a3b8',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -110,14 +111,14 @@ export default function AuthModal({ onLogin }) {
             type="button"
             onClick={() => setRole('PARENT')}
             style={{
-              flex: 1,
+              flex: '1 1 140px',
               padding: '10px',
               borderRadius: '8px',
               border: 'none',
               background: role === 'PARENT' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
               color: role === 'PARENT' ? '#fff' : '#94a3b8',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',

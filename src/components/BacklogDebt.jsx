@@ -58,28 +58,28 @@ export default function BacklogDebt() {
       </div>
 
       {/* AI Debt Forgiveness Proposal */}
-      <div className="glass-card" style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+      <div className="glass-card" style={{ padding: '20px', background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
           <ShieldAlert size={20} color="#38bdf8" />
           <h3 style={{ fontSize: '1rem', color: '#f3f4f6', fontWeight: 700 }}>
             System Recommended Debt Forgiveness
           </h3>
         </div>
 
-        <p style={{ fontSize: '0.9rem', color: '#d1d5db', lineHeight: 1.5, marginBottom: '16px' }}>
+        <p style={{ fontSize: '0.88rem', color: '#d1d5db', lineHeight: 1.5, marginBottom: '16px' }}>
           {debt.repaymentPlanSummary}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
           {debt.proposedForgivenessTopics.map((topic, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', color: '#e5e7eb' }}>
-              <CheckCircle2 size={16} color="#4ade80" />
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.82rem', color: '#e5e7eb' }}>
+              <CheckCircle2 size={16} color="#4ade80" style={{ flexShrink: 0 }} />
               <span>{topic}</span>
             </div>
           ))}
         </div>
 
-        <button className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <button className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', maxWidth: '380px' }}>
           Approve Debt Forgiveness & Update Plan <ArrowRight size={16} />
         </button>
       </div>

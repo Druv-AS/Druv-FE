@@ -28,26 +28,26 @@ export default function ParentPortal({ user }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '850px', margin: '0 auto' }}>
       
       {/* Header */}
-      <div className="glass-card" style={{ padding: '28px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))', border: '1px solid rgba(52, 211, 153, 0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="glass-card" style={{ padding: '20px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.95))', border: '1px solid rgba(52, 211, 153, 0.3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
               <span className="badge badge-green">
                 <ShieldCheck size={14} /> Parent Transparency Portal
               </span>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Verified Study Telemetry</span>
+              <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Verified Study Telemetry</span>
             </div>
-            <h2 style={{ fontSize: '1.5rem', fontFamily: 'var(--font-heading)', color: '#f8fafc', fontWeight: 800 }}>
+            <h2 style={{ fontSize: '1.35rem', fontFamily: 'var(--font-heading)', color: '#f8fafc', fontWeight: 800 }}>
               {report.studentName}'s Progress Summary
             </h2>
-            <p style={{ fontSize: '0.88rem', color: '#94a3b8', marginTop: '2px' }}>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '2px' }}>
               Target: {report.examTarget} • Verified effort without invasive screen surveillance.
             </p>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px 18px', borderRadius: '12px', textAlign: 'right' }}>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Effort Rating</span>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#34d399', fontFamily: 'var(--font-heading)' }}>
+          <div style={{ background: 'rgba(255,255,255,0.04)', padding: '10px 16px', borderRadius: '12px', textAlign: 'left' }}>
+            <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Effort Rating</span>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#34d399', fontFamily: 'var(--font-heading)' }}>
               {report.effortRating}
             </div>
           </div>

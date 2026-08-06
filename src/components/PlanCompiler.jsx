@@ -64,7 +64,7 @@ export default function PlanCompiler() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '850px', margin: '0 auto' }}>
       {/* Header & Concept Principle */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', color: '#f3f4f6', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Calendar size={22} color="#38bdf8" /> Daily Study Timetable (Plan Compiler)
@@ -78,7 +78,7 @@ export default function PlanCompiler() {
           className="btn-primary"
           onClick={handleRecompile}
           disabled={isRecompiling}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', padding: '8px 14px' }}
         >
           <RefreshCw size={14} className={isRecompiling ? 'animate-spin' : ''} />
           {isRecompiling ? 'Recompiling...' : 'Recompile Plan (OR-Tools)'}
@@ -86,12 +86,12 @@ export default function PlanCompiler() {
       </div>
 
       {/* Commitment Banner */}
-      <div className="glass-card" style={{ padding: '16px 20px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(37, 99, 235, 0.1))', border: '1px solid rgba(56, 189, 248, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="glass-card" style={{ padding: '14px 18px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(37, 99, 235, 0.1))', border: '1px solid rgba(56, 189, 248, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Sparkles size={20} color="#38bdf8" />
+          <Sparkles size={18} color="#38bdf8" style={{ flexShrink: 0 }} />
           <div>
-            <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700, textTransform: 'uppercase' }}>Daily Commitment Moment</span>
-            <p style={{ fontSize: '0.9rem', color: '#f3f4f6', fontWeight: 600 }}>"{commitment}"</p>
+            <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 700, textTransform: 'uppercase' }}>Daily Commitment Moment</span>
+            <p style={{ fontSize: '0.88rem', color: '#f3f4f6', fontWeight: 600 }}>"{commitment}"</p>
           </div>
         </div>
         <span className="badge badge-green">Adherence +34%</span>
@@ -107,46 +107,48 @@ export default function PlanCompiler() {
               key={block.id}
               className="glass-card"
               style={{
-                padding: '18px 22px',
+                padding: '16px',
                 display: 'flex',
                 alignItems: 'center',
                 justify: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px',
                 opacity: block.isCompleted ? 0.65 : 1,
                 borderLeft: block.isCompleted ? '4px solid #4ade80' : '4px solid #0284c7',
                 transition: 'all 0.2s ease'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 240px' }}>
                 <button
                   onClick={() => toggleCompletion(block.id)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: block.isCompleted ? '#4ade80' : '#6b7280', padding: 0 }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: block.isCompleted ? '#4ade80' : '#6b7280', padding: 0, flexShrink: 0 }}
                 >
-                  {block.isCompleted ? <CheckCircle2 size={24} /> : <Circle size={24} />}
+                  {block.isCompleted ? <CheckCircle2 size={22} /> : <Circle size={22} />}
                 </button>
 
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Clock size={13} /> {block.timeSlot}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Clock size={12} /> {block.timeSlot}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.72rem', color: '#9ca3af', fontWeight: 600 }}>
                       {block.subject}
                     </span>
                     {block.weightagePercent > 0 && (
-                      <span style={{ fontSize: '0.72rem', color: '#fb923c', background: 'rgba(251, 146, 60, 0.1)', padding: '1px 6px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.68rem', color: '#fb923c', background: 'rgba(251, 146, 60, 0.1)', padding: '1px 5px', borderRadius: '4px' }}>
                         {block.weightagePercent}% Exam Weight
                       </span>
                     )}
                   </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: block.isCompleted ? '#9ca3af' : '#f3f4f6', textDecoration: block.isCompleted ? 'line-through' : 'none' }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: block.isCompleted ? '#9ca3af' : '#f3f4f6', textDecoration: block.isCompleted ? 'line-through' : 'none' }}>
                     {block.topicName}
                   </h4>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                 {getActivityBadge(block.activityType)}
-                <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.78rem', color: '#9ca3af', fontWeight: 600 }}>
                   {block.durationMinutes}m
                 </span>
               </div>

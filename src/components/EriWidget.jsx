@@ -42,10 +42,10 @@ export default function EriWidget() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Hero ERI Header */}
-      <div className="glass-card" style={{ padding: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, rgba(22, 30, 49, 0.9), rgba(15, 23, 42, 0.9))' }}>
+      <div className="glass-card" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', background: 'linear-gradient(135deg, rgba(22, 30, 49, 0.9), rgba(15, 23, 42, 0.9))' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.85rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.8rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
               Exam Readiness Index (ERI)
             </span>
             <span className="badge badge-green">
@@ -53,12 +53,12 @@ export default function EriWidget() {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-            <span style={{ fontSize: '3.5rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: '#f3f4f6' }}>
+            <span style={{ fontSize: 'clamp(2.5rem, 8vw, 3.5rem)', fontWeight: 800, fontFamily: 'var(--font-heading)', color: '#f3f4f6' }}>
               {data.overallEri}
             </span>
-            <span style={{ fontSize: '1.2rem', color: '#6b7280', fontWeight: 600 }}>/ 100</span>
+            <span style={{ fontSize: '1.1rem', color: '#6b7280', fontWeight: 600 }}>/ 100</span>
           </div>
-          <p style={{ color: '#d1d5db', marginTop: '12px', fontSize: '0.95rem', maxWidth: '600px' }}>
+          <p style={{ color: '#d1d5db', marginTop: '8px', fontSize: '0.88rem', maxWidth: '600px' }}>
             {data.statusMessage}
           </p>
         </div>
@@ -66,14 +66,15 @@ export default function EriWidget() {
         <div style={{
           background: 'rgba(56, 189, 248, 0.08)',
           border: '1px solid rgba(56, 189, 248, 0.2)',
-          padding: '20px',
+          padding: '16px',
           borderRadius: '14px',
-          maxWidth: '320px'
+          maxWidth: '100%',
+          flex: '1 1 260px'
         }}>
-          <h4 style={{ fontSize: '0.8rem', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 700 }}>
+          <h4 style={{ fontSize: '0.78rem', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 700 }}>
             Highest Leverage Action
           </h4>
-          <p style={{ fontSize: '0.875rem', color: '#e5e7eb', lineHeight: 1.4 }}>
+          <p style={{ fontSize: '0.85rem', color: '#e5e7eb', lineHeight: 1.4 }}>
             {data.topLeverageAction}
           </p>
         </div>

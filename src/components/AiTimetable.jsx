@@ -232,6 +232,8 @@ export default function AiTimetable() {
           display: 'flex',
           alignItems: 'center',
           justify: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
           background: 'rgba(255,255,255,0.02)',
           padding: '14px 20px',
           borderRadius: '14px',
@@ -241,7 +243,7 @@ export default function AiTimetable() {
             Tap days to enable/disable schedule:
           </span>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {daysList.map((day) => {
               const isSelected = activeDays.includes(day.key);
               return (
@@ -251,8 +253,8 @@ export default function AiTimetable() {
                   onClick={() => toggleDaySelection(day.key)}
                   title={`Toggle ${day.full}`}
                   style={{
-                    width: '44px',
-                    height: '44px',
+                    width: '38px',
+                    height: '38px',
                     borderRadius: '50%',
                     border: isSelected ? '2px solid #38bdf8' : '1px solid rgba(255,255,255,0.12)',
                     background: isSelected
@@ -260,7 +262,7 @@ export default function AiTimetable() {
                       : 'rgba(255,255,255,0.03)',
                     color: isSelected ? '#ffffff' : '#64748b',
                     fontWeight: 800,
-                    fontSize: '0.95rem',
+                    fontSize: '0.85rem',
                     cursor: 'pointer',
                     boxShadow: isSelected ? '0 0 18px rgba(56, 189, 248, 0.5)' : 'none',
                     transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -278,20 +280,20 @@ export default function AiTimetable() {
       </div>
 
       {/* AI Timetable Prompt Generator Box */}
-      <form onSubmit={handleAiGenerate} className="glass-card" style={{ padding: '20px', display: 'flex', gap: '12px', background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(15, 23, 42, 0.9))', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+      <form onSubmit={handleAiGenerate} className="glass-card" style={{ padding: '16px', display: 'flex', flexWrap: 'wrap', gap: '10px', background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(15, 23, 42, 0.9))', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
         <input
           type="text"
           placeholder="Type custom prompt e.g. 'I wake up at 6 AM, coaching 9-3, need 2 hrs Physics MCQs'"
           value={aiPrompt}
           onChange={(e) => setAiPrompt(e.target.value)}
           style={{
-            flex: 1,
-            padding: '12px 16px',
+            flex: '1 1 240px',
+            padding: '10px 14px',
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '10px',
             color: '#f8fafc',
-            fontSize: '0.9rem',
+            fontSize: '0.85rem',
             outline: 'none'
           }}
         />
@@ -299,15 +301,15 @@ export default function AiTimetable() {
           type="submit"
           disabled={isGenerating}
           className="btn-primary"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap', padding: '12px 20px' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'nowrap', padding: '10px 18px', flex: '1 1 auto' }}
         >
-          <Sparkles size={16} /> {isGenerating ? 'Compiling Schedule...' : 'Compile AI Timetable'}
+          <Sparkles size={16} /> {isGenerating ? 'Compiling...' : 'Compile AI Timetable'}
         </button>
       </form>
 
       {/* 4-Column Editable Timetable Table */}
-      <div className="glass-card" style={{ padding: '0px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+      <div className="glass-card" style={{ padding: '0px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
           <thead>
             <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <th style={{ padding: '16px 20px', color: '#38bdf8', fontWeight: 700, width: '22%' }}>

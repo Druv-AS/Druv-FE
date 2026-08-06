@@ -48,7 +48,7 @@ export default function SyllabusHeatmap() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', color: '#f3f4f6', fontWeight: 700 }}>
             Syllabus Heatmap
@@ -59,7 +59,7 @@ export default function SyllabusHeatmap() {
         </div>
 
         {/* Filter Controls */}
-        <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '10px' }}>
+        <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.03)', padding: '4px', borderRadius: '10px', flexWrap: 'wrap' }}>
           {['ALL', 'Physics', 'Chemistry', 'Biology'].map((subj) => (
             <button
               key={subj}

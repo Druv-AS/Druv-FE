@@ -147,6 +147,32 @@ body {
   gap: 18px;
 }
 
+/* ==========================================================================
+   RESPONSIVE UTILITIES & MOBILE BREAKPOINTS
+   ========================================================================== */
+
+.main-container {
+  flex: 1;
+  padding: 32px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Hide scrollbars while enabling momentum horizontal touch scrolling */
+.scrollable-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.scrollable-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mobile responsive animations & keyframes */
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
@@ -158,3 +184,98 @@ body {
     box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
   }
 }
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navbar Desktop & Tablet vs Phone Dropdown visibility rules */
+.navbar-desktop-tabs {
+  display: block !important;
+}
+
+.navbar-mobile-trigger {
+  display: none !important;
+}
+
+/* Phone Breakpoint (<= 640px) */
+@media (max-width: 640px) {
+  .navbar-desktop-tabs {
+    display: none !important;
+  }
+
+  .navbar-mobile-trigger {
+    display: block !important;
+  }
+}
+
+/* Tablet & Mobile Layout Refinements (<= 768px) */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 16px 12px;
+  }
+
+  .glass-card {
+    border-radius: 14px;
+  }
+
+  .grid-heatmap {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .btn-primary {
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    min-height: 44px; /* Touch target minimum height */
+  }
+
+  /* Responsive flex helper classes */
+  .responsive-flex-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+
+  .responsive-hero-grid {
+    flex-direction: column !important;
+  }
+
+  .responsive-hero-img {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .responsive-timetable-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+}
+
+/* Narrow Phone Breakpoint (<= 480px) */
+@media (max-width: 480px) {
+  .main-container {
+    padding: 12px 10px;
+  }
+
+  .grid-heatmap {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+}
+
+
