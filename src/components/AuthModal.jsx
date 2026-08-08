@@ -106,27 +106,22 @@ export default function AuthModal({ onLogin }) {
           })
         });
         
-        let data = {};
-        try {
-          data = await res.json();
-        } catch(err) {
-          data = {};
-        }
+        const data = await res.json().catch(() => ({}));
 
         if (data && data.error) {
           const errText = data.error;
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
-            setErrorMessage('Account not found for this Mobile/User ID. Redirecting to Create Account...');
+            setErrorMessage('Account not found with this Mobile Number or User ID. Redirecting to Create Account...');
             setTimeout(() => {
               setAuthMode('register');
               setErrorMessage('');
-            }, 1200);
+            }, 1500);
             return;
           } else if (errText.includes('INVALID_PASSWORD')) {
-            setErrorMessage('Incorrect password. Please verify and try again.');
+            setErrorMessage('Incorrect password. Please check your password and try again.');
             return;
           } else {
-            setErrorMessage(errText);
+            setErrorMessage(errText.replace(/^[A-Z_]+:\s*/, ''));
             return;
           }
         }
@@ -148,40 +143,34 @@ export default function AuthModal({ onLogin }) {
         localStorage.setItem('dhruv_user', JSON.stringify(userData));
         onLogin(userData);
       } else {
-        let data = {};
-        try {
-          const res = await fetch('/api/v1/auth/parent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              mode: authMode,
-              name: effectiveName,
-              userId: generatedUserId,
-              phoneNumber: phone.trim() || '+919876543211',
-              password: password
-            })
-          });
-          if (res.ok) {
-            data = await res.json();
-          }
-        } catch(err) {
-          data = {};
-        }
+        const res = await fetch('/api/v1/auth/parent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: authMode,
+            name: effectiveName,
+            userId: generatedUserId,
+            phoneNumber: phone.trim() || '+919876543211',
+            password: password
+          })
+        });
+
+        const data = await res.json().catch(() => ({}));
 
         if (data && data.error) {
           const errText = data.error;
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
-            setErrorMessage('Account not found for this Mobile/User ID. Redirecting to Create Account...');
+            setErrorMessage('Account not found with this Mobile Number or User ID. Redirecting to Create Account...');
             setTimeout(() => {
               setAuthMode('register');
               setErrorMessage('');
-            }, 1200);
+            }, 1500);
             return;
           } else if (errText.includes('INVALID_PASSWORD')) {
-            setErrorMessage('Incorrect password. Please verify and try again.');
+            setErrorMessage('Incorrect password. Please check your password and try again.');
             return;
           } else {
-            setErrorMessage(errText);
+            setErrorMessage(errText.replace(/^[A-Z_]+:\s*/, ''));
             return;
           }
         }
@@ -199,6 +188,19 @@ export default function AuthModal({ onLogin }) {
         onLogin(userData);
       }
     } catch (err) {
+      if (authMode === 'login') {
+        const savedUserRaw = localStorage.getItem('dhruv_user');
+        if (savedUserRaw) {
+          try {
+            const savedUser = JSON.parse(savedUserRaw);
+            if (savedUser.password && savedUser.password !== password) {
+              setErrorMessage('Incorrect password. Please check your password and try again.');
+              return;
+            }
+          } catch(e) {}
+        }
+      }
+
       const fallbackData = {
         name: effectiveName,
         userId: generatedUserId,
@@ -206,6 +208,7 @@ export default function AuthModal({ onLogin }) {
         parentPhone: targetParentPhone,
         course,
         role,
+        password,
         isLoggedIn: true
       };
       localStorage.setItem('dhruv_user', JSON.stringify(fallbackData));
