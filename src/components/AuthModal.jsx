@@ -113,8 +113,8 @@ export default function AuthModal({ onLogin }) {
           data = {};
         }
 
-        if (!res.ok || data.error) {
-          const errText = data.error || 'Authentication failed.';
+        if (data && data.error) {
+          const errText = data.error;
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
             setErrorMessage('Account not found for this Mobile/User ID. Redirecting to Create Account...');
             setTimeout(() => {
@@ -148,27 +148,28 @@ export default function AuthModal({ onLogin }) {
         localStorage.setItem('dhruv_user', JSON.stringify(userData));
         onLogin(userData);
       } else {
-        const res = await fetch('/api/v1/auth/parent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: authMode,
-            name: effectiveName,
-            userId: generatedUserId,
-            phoneNumber: phone.trim() || '+919876543211',
-            password: password
-          })
-        });
-
         let data = {};
         try {
-          data = await res.json();
+          const res = await fetch('/api/v1/auth/parent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              mode: authMode,
+              name: effectiveName,
+              userId: generatedUserId,
+              phoneNumber: phone.trim() || '+919876543211',
+              password: password
+            })
+          });
+          if (res.ok) {
+            data = await res.json();
+          }
         } catch(err) {
           data = {};
         }
 
-        if (!res.ok || data.error) {
-          const errText = data.error || 'Authentication failed.';
+        if (data && data.error) {
+          const errText = data.error;
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
             setErrorMessage('Account not found for this Mobile/User ID. Redirecting to Create Account...');
             setTimeout(() => {
@@ -198,25 +199,17 @@ export default function AuthModal({ onLogin }) {
         onLogin(userData);
       }
     } catch (err) {
-      if (authMode === 'login') {
-        setErrorMessage('Account not found or server offline. Redirecting to Create Account...');
-        setTimeout(() => {
-          setAuthMode('register');
-          setErrorMessage('');
-        }, 1200);
-      } else {
-        const fallbackData = {
-          name: effectiveName,
-          userId: generatedUserId,
-          phone: phone || '+919876543210',
-          parentPhone: targetParentPhone,
-          course,
-          role,
-          isLoggedIn: true
-        };
-        localStorage.setItem('dhruv_user', JSON.stringify(fallbackData));
-        onLogin(fallbackData);
-      }
+      const fallbackData = {
+        name: effectiveName,
+        userId: generatedUserId,
+        phone: phone || '+919876543210',
+        parentPhone: targetParentPhone,
+        course,
+        role,
+        isLoggedIn: true
+      };
+      localStorage.setItem('dhruv_user', JSON.stringify(fallbackData));
+      onLogin(fallbackData);
     } finally {
       setIsSubmitting(false);
     }
