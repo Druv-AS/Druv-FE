@@ -40,9 +40,17 @@ export default function App() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('dhruv_user');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/v1/auth/logout', { method: 'POST' }).catch(() => {});
+    } catch (err) {}
+
+    // Completely purge both localStorage and sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+
     setUser(null);
+    setActiveTab('dashboard');
     setShowAuthModal(true);
   };
 
