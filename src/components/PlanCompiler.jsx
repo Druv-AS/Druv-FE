@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle2, Circle, RefreshCw, Zap, Sparkles, AlertCircle } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 export default function PlanCompiler() {
   const [blocks, setBlocks] = useState([]);
@@ -13,7 +14,7 @@ export default function PlanCompiler() {
 
   const fetchDailyPlan = () => {
     setLoading(true);
-    fetch('/api/v1/plan/daily')
+    fetch(getApiUrl('/api/v1/plan/daily'))
       .then((res) => res.json())
       .then((data) => {
         setBlocks(data);

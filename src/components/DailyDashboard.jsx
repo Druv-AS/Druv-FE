@@ -3,6 +3,7 @@ import {
   Sparkles, Flame, Play, Clock, ArrowUpRight, Zap, Target, 
   Users, CheckCircle2, ShieldAlert, ArrowRight, Activity, Stethoscope, Cpu, GraduationCap
 } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 import neetDoctorImg from '../assets/neet_doctor.png';
 import jeeEngineerImg from '../assets/jee_engineer.png';
@@ -13,7 +14,7 @@ export default function DailyDashboard({ setActiveTab }) {
   const [eriData, setEriData] = useState(null);
 
   useEffect(() => {
-    fetch('/api/v1/readiness/eri')
+    fetch(getApiUrl('/api/v1/readiness/eri'))
       .then((res) => res.json())
       .then((data) => setEriData(data))
       .catch(() => {

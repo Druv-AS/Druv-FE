@@ -3,6 +3,7 @@ import {
   Award, Flame, Play, Clock, ArrowUpRight, Zap, Target, 
   Users, CheckCircle2, Check, ShieldAlert, ArrowRight, Activity, Stethoscope, Cpu, GraduationCap, Sparkles, Shield, RefreshCw
 } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 import neetDoctorImg from '../assets/neet_doctor.png';
 import jeeEngineerImg from '../assets/jee_engineer.png';
@@ -512,7 +513,7 @@ function SendReportCard({ user }) {
     setSending(true);
     try {
       const studentId = user?.userId || user?.phone || "";
-      const res = await fetch(`/api/v1/student/send-report?studentPhoneOrId=${encodeURIComponent(studentId)}`, {
+      const res = await fetch(getApiUrl(`/api/v1/student/send-report?studentPhoneOrId=${encodeURIComponent(studentId)}`), {
         method: 'POST'
       });
       const data = await res.json();

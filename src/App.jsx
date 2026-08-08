@@ -7,6 +7,7 @@ import SyllabusHeatmap from './components/SyllabusHeatmap';
 import CoStudyRoom from './components/CoStudyRoom';
 import BacklogDebt from './components/BacklogDebt';
 import ParentPortal from './components/ParentPortal';
+import { getApiUrl } from './api';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -42,7 +43,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/v1/auth/logout', { method: 'POST' }).catch(() => {});
+      await fetch(getApiUrl('/api/v1/auth/logout'), { method: 'POST' }).catch(() => {});
     } catch (err) {}
 
     // Completely purge both localStorage and sessionStorage

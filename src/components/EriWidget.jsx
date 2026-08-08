@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, Target, Zap, ShieldCheck, Activity, ArrowUpRight } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 export default function EriWidget() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/readiness/eri')
+    fetch(getApiUrl('/api/v1/readiness/eri'))
       .then((res) => res.json())
       .then((json) => {
         setData(json);

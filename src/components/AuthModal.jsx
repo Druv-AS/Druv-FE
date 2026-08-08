@@ -4,6 +4,7 @@ import {
   HeartHandshake, Zap, Lock, Eye, EyeOff, CheckCircle2, 
   AlertCircle, LogIn, UserPlus, Sparkles, KeyRound 
 } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 export default function AuthModal({ onLogin }) {
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
@@ -77,7 +78,7 @@ export default function AuthModal({ onLogin }) {
 
     try {
       if (role === 'STUDENT') {
-        const res = await fetch('/api/v1/auth/student', {
+        const res = await fetch(getApiUrl('/api/v1/auth/student'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -129,7 +130,7 @@ export default function AuthModal({ onLogin }) {
         localStorage.setItem('dhruv_user', JSON.stringify(userData));
         onLogin(userData);
       } else {
-        const res = await fetch('/api/v1/auth/parent', {
+        const res = await fetch(getApiUrl('/api/v1/auth/parent'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

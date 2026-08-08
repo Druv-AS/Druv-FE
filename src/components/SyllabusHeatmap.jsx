@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Filter, Layers, AlertCircle } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 export default function SyllabusHeatmap() {
   const [tiles, setTiles] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState('ALL');
 
   useEffect(() => {
-    fetch('/api/v1/readiness/heatmap')
+    fetch(getApiUrl('/api/v1/readiness/heatmap'))
       .then((res) => res.json())
       .then((data) => setTiles(data))
       .catch(() => {

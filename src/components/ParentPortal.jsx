@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, HeartHandshake, CheckCircle2, Clock, Target, Award, UserPlus, GraduationCap, Zap, Activity, ChevronRight } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 export default function ParentPortal({ user }) {
   const [studentsList, setStudentsList] = useState([]);
@@ -13,7 +14,7 @@ export default function ParentPortal({ user }) {
 
   const fetchStudents = () => {
     setLoading(true);
-    fetch(`/api/v1/parent/students?parentPhone=${encodeURIComponent(parentPhone)}`)
+    fetch(getApiUrl(`/api/v1/parent/students?parentPhone=${encodeURIComponent(parentPhone)}`))
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -100,7 +101,7 @@ export default function ParentPortal({ user }) {
     if (!linkInput.trim()) return;
 
     try {
-      const res = await fetch('/api/v1/parent/link-student', {
+      const res = await fetch(getApiUrl('/api/v1/parent/link-student'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

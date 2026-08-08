@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldAlert, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 export default function BacklogDebt() {
   const [debt, setDebt] = useState(null);
 
   useEffect(() => {
-    fetch('/api/v1/readiness/backlog-debt')
+    fetch(getApiUrl('/api/v1/readiness/backlog-debt'))
       .then((res) => res.json())
       .then((data) => setDebt(data))
       .catch(() => {

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { MessageSquare, HeartHandshake, Eye, CheckCircle2, AlertCircle } from 'lucide-react';
+import { getApiUrl } from '../api';
 
 export default function ParentReport() {
   const [report, setReport] = useState(null);
 
   useEffect(() => {
-    fetch('/api/v1/readiness/parent-report')
+    fetch(getApiUrl('/api/v1/readiness/parent-report'))
       .then((res) => res.json())
       .then((data) => setReport(data))
       .catch(() => {
