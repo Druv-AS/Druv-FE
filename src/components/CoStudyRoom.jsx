@@ -8,9 +8,17 @@ export default function CoStudyRoom() {
   const [wsConnected, setWsConnected] = useState(false);
 
   useEffect(() => {
-    // Try connecting to WebSocket backend
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/costudy`;
+    // Try connecting to WebSocket backend (Railway / Vercel compatible)
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    let wsUrl;
+    if (backendUrl) {
+      const wsProtocol = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
+      const host = backendUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      wsUrl = `${wsProtocol}//${host}/ws/costudy`;
+    } else {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsUrl = `${protocol}//${window.location.host}/ws/costudy`;
+    }
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
