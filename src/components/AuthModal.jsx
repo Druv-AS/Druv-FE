@@ -42,53 +42,38 @@ export default function AuthModal({ onLogin }) {
   const strength = getPasswordStrength(password);
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
 
-  // Preset demo handlers
-  const handleQuickDemoStudent = () => {
-    setRole('STUDENT');
-    setName('Aarav Sharma');
-    setUserId('aarav_2027');
-    setPhone('+919876543210');
-    setParentPhone('+919876543211');
-    setCourse('NEET 2027 Repeater');
-    setPassword('Dhruv#2027');
-    setConfirmPassword('Dhruv#2027');
-    setErrorMessage('');
-  };
-
-  const handleQuickDemoParent = () => {
-    setRole('PARENT');
-    setName('Rajesh Sharma');
-    setUserId('parent_rajesh');
-    setPhone('+919876543211');
-    setPassword('DhruvParent#2027');
-    setConfirmPassword('DhruvParent#2027');
-    setErrorMessage('');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
 
-    if (authMode === 'register' && password !== confirmPassword) {
-      setErrorMessage('Passwords do not match. Please verify your passwords.');
-      return;
-    }
+    const trimmedPhone = phone.trim();
+    const trimmedPassword = password.trim();
+    const trimmedName = name.trim();
+    const trimmedUserId = userId.trim();
+    const trimmedParentPhone = parentPhone.trim();
 
-    if (!phone && !userId) {
+    if (!trimmedPhone) {
       setErrorMessage('Please enter your Mobile Number or User ID.');
       return;
     }
 
-    if (authMode === 'register' && !name) {
-      setErrorMessage('Please enter your full name.');
+    if (!trimmedPassword) {
+      setErrorMessage('Please enter your password.');
       return;
     }
 
-    setIsSubmitting(true);
+    if (authMode === 'register') {
+      if (!trimmedName) {
+        setErrorMessage('Please enter your full name.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setErrorMessage('Passwords do not match. Please verify your passwords.');
+        return;
+      }
+    }
 
-    const effectiveName = name.trim() || (role === 'STUDENT' ? 'Student User' : 'Parent User');
-    const generatedUserId = userId.trim() || effectiveName.toLowerCase().replace(/\s+/g, '_') + '_' + (phone.length > 4 ? phone.slice(-4) : '1234');
-    const targetParentPhone = role === 'STUDENT' ? (parentPhone.trim() || '+919876543211') : phone.trim();
+    setIsSubmitting(true);
 
     try {
       if (role === 'STUDENT') {
@@ -97,10 +82,10 @@ export default function AuthModal({ onLogin }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             mode: authMode,
-            name: effectiveName,
-            userId: generatedUserId,
-            phoneNumber: phone.trim() || '+919876543210',
-            parentPhoneNumber: targetParentPhone,
+            name: trimmedName,
+            userId: trimmedUserId,
+            phoneNumber: trimmedPhone,
+            parentPhoneNumber: trimmedParentPhone,
             examTarget: course,
             password: password
           })
@@ -108,17 +93,13 @@ export default function AuthModal({ onLogin }) {
         
         const data = await res.json().catch(() => ({}));
 
-        if (data && data.error) {
-          const errText = data.error;
+        if (!res.ok || (data && data.error)) {
+          const errText = (data && data.error) ? data.error : 'Authentication failed';
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
-            setErrorMessage('Account not found with this Mobile Number or User ID. Redirecting to Create Account...');
-            setTimeout(() => {
-              setAuthMode('register');
-              setErrorMessage('');
-            }, 1500);
+            setErrorMessage('Account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
             return;
           } else if (errText.includes('INVALID_PASSWORD')) {
-            setErrorMessage('Incorrect password. Please check your password and try again.');
+            setErrorMessage('Incorrect password. Please verify your password and try again.');
             return;
           } else {
             setErrorMessage(errText.replace(/^[A-Z_]+:\s*/, ''));
@@ -126,12 +107,17 @@ export default function AuthModal({ onLogin }) {
           }
         }
 
+        if (!data || !data.id) {
+          setErrorMessage('Invalid credentials or account does not exist in system.');
+          return;
+        }
+
         const userData = {
-          id: data.id || 'std_' + Date.now(),
-          name: data.name || effectiveName,
-          userId: data.userId || generatedUserId,
-          phone: data.phoneNumber || phone || '+919876543210',
-          parentPhone: data.parentPhoneNumber || targetParentPhone,
+          id: data.id,
+          name: data.name || trimmedName,
+          userId: data.userId || trimmedUserId,
+          phone: data.phoneNumber || trimmedPhone,
+          parentPhone: data.parentPhoneNumber || trimmedParentPhone,
           course: data.targetCourse || course,
           role: 'STUDENT',
           level: data.level || 12,
@@ -148,26 +134,22 @@ export default function AuthModal({ onLogin }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             mode: authMode,
-            name: effectiveName,
-            userId: generatedUserId,
-            phoneNumber: phone.trim() || '+919876543211',
+            name: trimmedName,
+            userId: trimmedUserId,
+            phoneNumber: trimmedPhone,
             password: password
           })
         });
 
         const data = await res.json().catch(() => ({}));
 
-        if (data && data.error) {
-          const errText = data.error;
+        if (!res.ok || (data && data.error)) {
+          const errText = (data && data.error) ? data.error : 'Authentication failed';
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
-            setErrorMessage('Account not found with this Mobile Number or User ID. Redirecting to Create Account...');
-            setTimeout(() => {
-              setAuthMode('register');
-              setErrorMessage('');
-            }, 1500);
+            setErrorMessage('Parent account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
             return;
           } else if (errText.includes('INVALID_PASSWORD')) {
-            setErrorMessage('Incorrect password. Please check your password and try again.');
+            setErrorMessage('Incorrect password. Please verify your password and try again.');
             return;
           } else {
             setErrorMessage(errText.replace(/^[A-Z_]+:\s*/, ''));
@@ -175,11 +157,16 @@ export default function AuthModal({ onLogin }) {
           }
         }
 
+        if (!data || !data.id) {
+          setErrorMessage('Invalid credentials or account does not exist in system.');
+          return;
+        }
+
         const userData = {
-          id: data.id || 'prt_' + Date.now(),
-          name: data.name || effectiveName,
-          userId: data.userId || generatedUserId,
-          phone: data.phoneNumber || phone || '+919876543211',
+          id: data.id,
+          name: data.name || trimmedName,
+          userId: data.userId || trimmedUserId,
+          phone: data.phoneNumber || trimmedPhone,
           role: 'PARENT',
           isLoggedIn: true
         };
@@ -188,31 +175,7 @@ export default function AuthModal({ onLogin }) {
         onLogin(userData);
       }
     } catch (err) {
-      if (authMode === 'login') {
-        const savedUserRaw = localStorage.getItem('dhruv_user');
-        if (savedUserRaw) {
-          try {
-            const savedUser = JSON.parse(savedUserRaw);
-            if (savedUser.password && savedUser.password !== password) {
-              setErrorMessage('Incorrect password. Please check your password and try again.');
-              return;
-            }
-          } catch(e) {}
-        }
-      }
-
-      const fallbackData = {
-        name: effectiveName,
-        userId: generatedUserId,
-        phone: phone || '+919876543210',
-        parentPhone: targetParentPhone,
-        course,
-        role,
-        password,
-        isLoggedIn: true
-      };
-      localStorage.setItem('dhruv_user', JSON.stringify(fallbackData));
-      onLogin(fallbackData);
+      setErrorMessage('Unable to connect to authentication server. Please ensure the backend server is running.');
     } finally {
       setIsSubmitting(false);
     }
@@ -382,56 +345,7 @@ export default function AuthModal({ onLogin }) {
           </button>
         </div>
 
-        {/* Quick Demo Preset Bar */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '16px',
-          padding: '8px 12px',
-          background: 'rgba(56, 189, 248, 0.05)',
-          borderRadius: '12px',
-          border: '1px dashed rgba(56, 189, 248, 0.3)',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Zap size={14} /> Quick Demo:
-          </span>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <button
-              type="button"
-              onClick={handleQuickDemoStudent}
-              style={{
-                padding: '5px 10px',
-                fontSize: '0.72rem',
-                borderRadius: '6px',
-                background: 'rgba(2, 132, 199, 0.25)',
-                border: '1px solid rgba(2, 132, 199, 0.5)',
-                color: '#38bdf8',
-                cursor: 'pointer',
-                fontWeight: 600
-              }}
-            >
-              ⚡ Student
-            </button>
-            <button
-              type="button"
-              onClick={handleQuickDemoParent}
-              style={{
-                padding: '5px 10px',
-                fontSize: '0.72rem',
-                borderRadius: '6px',
-                background: 'rgba(16, 185, 129, 0.25)',
-                border: '1px solid rgba(16, 185, 129, 0.5)',
-                color: '#34d399',
-                cursor: 'pointer',
-                fontWeight: 600
-              }}
-            >
-              ⚡ Parent
-            </button>
-          </div>
-        </div>
+
 
         {/* Error Notification Banner */}
         {errorMessage && (

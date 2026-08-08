@@ -505,13 +505,13 @@ export default function GamifiedDashboard({ user, setActiveTab }) {
 function SendReportCard({ user }) {
   const [sending, setSending] = useState(false);
   const [reportSentInfo, setReportSentInfo] = useState(null);
-  const [parentPhoneInput, setParentPhoneInput] = useState(user?.parentPhone || "+919876543211");
+  const [parentPhoneInput, setParentPhoneInput] = useState(user?.parentPhone || "");
   const [isEditingPhone, setIsEditingPhone] = useState(false);
 
   const handleSendReport = async () => {
     setSending(true);
     try {
-      const studentId = user?.userId || user?.phone || "+919876543210";
+      const studentId = user?.userId || user?.phone || "";
       const res = await fetch(`/api/v1/student/send-report?studentPhoneOrId=${encodeURIComponent(studentId)}`, {
         method: 'POST'
       });
