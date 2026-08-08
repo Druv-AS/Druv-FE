@@ -481,11 +481,11 @@ export default function AuthModal({ onLogin }) {
             </div>
           )}
 
-          {/* Target Exam (For Student Registration) */}
-          {authMode === 'register' && role === 'STUDENT' && (
+          {/* Target Exam / Goal (For Student Login & Registration) */}
+          {role === 'STUDENT' && (
             <div>
               <label style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
-                Target Exam / Goal
+                Target Exam / Pattern Goal
               </label>
               <select
                 value={course}
@@ -494,7 +494,7 @@ export default function AuthModal({ onLogin }) {
                   width: '100%',
                   padding: '9px 12px',
                   background: '#0f172a',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
                   borderRadius: '10px',
                   color: '#f8fafc',
                   fontSize: '0.88rem',
