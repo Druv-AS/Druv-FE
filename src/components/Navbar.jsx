@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   LayoutDashboard, Calendar, Flame, ShieldAlert, Users, 
-  ShieldCheck, Award, LogOut, ChevronDown, ChevronUp, Check 
+  ShieldCheck, Award, LogOut, ChevronDown, ChevronUp, Check, GraduationCap 
 } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
@@ -40,6 +40,8 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
     setDropdownOpen(false);
   };
 
+  const isParentRole = user?.role === 'PARENT';
+
   return (
     <header style={{
       borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
@@ -52,7 +54,7 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
     }}>
       <div ref={dropdownRef} style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
         
-        {/* TIER 1: Clean Top Header Bar (Brand Logo & Logout Action) */}
+        {/* TIER 1: Clean Top Header Bar (Brand Logo & User Profile / Logout) */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -85,8 +87,25 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
             </div>
           </div>
 
-          {/* Logout Action */}
+          {/* User Profile Pill & Logout Action */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {user && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '4px 10px',
+                borderRadius: '20px',
+                background: isParentRole ? 'rgba(16, 185, 129, 0.1)' : 'rgba(56, 189, 248, 0.1)',
+                border: isParentRole ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)'
+              }}>
+                {isParentRole ? <ShieldCheck size={14} color="#34d399" /> : <GraduationCap size={14} color="#38bdf8" />}
+                <span style={{ fontSize: '0.78rem', color: isParentRole ? '#34d399' : '#38bdf8', fontWeight: 700 }}>
+                  {user.name} ({isParentRole ? 'Parent' : 'Student'})
+                </span>
+              </div>
+            )}
+
             <button
               onClick={onLogout}
               title="Switch Account / Logout"
@@ -105,7 +124,7 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout }) {
               }}
             >
               <LogOut size={15} />
-              <span>Logout</span>
+              <span>Switch / Logout</span>
             </button>
           </div>
         </div>

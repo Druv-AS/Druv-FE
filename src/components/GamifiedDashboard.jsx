@@ -495,6 +495,137 @@ export default function GamifiedDashboard({ user, setActiveTab }) {
         </button>
       </div>
 
+      {/* Parent Report Dispatch Card for Student */}
+      <SendReportCard user={user} />
+
+    </div>
+  );
+}
+
+function SendReportCard({ user }) {
+  const [sending, setSending] = useState(false);
+  const [reportSentInfo, setReportSentInfo] = useState(null);
+  const [parentPhoneInput, setParentPhoneInput] = useState(user?.parentPhone || "+919876543211");
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+
+  const handleSendReport = async () => {
+    setSending(true);
+    try {
+      const studentId = user?.userId || user?.phone || "+919876543210";
+      const res = await fetch(`/api/v1/student/send-report?studentPhoneOrId=${encodeURIComponent(studentId)}`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      setReportSentInfo(data);
+    } catch (err) {
+      setReportSentInfo({
+        sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleSaveParentPhone = () => {
+    setIsEditingPhone(false);
+    if (user) {
+      const updatedUser = { ...user, parentPhone: parentPhoneInput };
+      localStorage.setItem('dhruv_user', JSON.stringify(updatedUser));
+    }
+  };
+
+  return (
+    <div 
+      className="glass-card"
+      style={{
+        padding: '20px',
+        background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(15, 23, 42, 0.95))',
+        border: '1px solid rgba(56, 189, 248, 0.3)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+        <div style={{
+          width: '42px',
+          height: '42px',
+          borderRadius: '12px',
+          background: 'rgba(56, 189, 248, 0.15)',
+          border: '1px solid rgba(56, 189, 248, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#38bdf8',
+          flexShrink: 0
+        }}>
+          <Shield size={22} />
+        </div>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc' }}>
+              Send Progress Report to Parent
+            </h4>
+            {!isEditingPhone ? (
+              <span 
+                onClick={() => setIsEditingPhone(true)}
+                style={{ fontSize: '0.75rem', color: '#38bdf8', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}
+              >
+                ({parentPhoneInput}) Edit
+              </span>
+            ) : (
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={parentPhoneInput}
+                  onChange={(e) => setParentPhoneInput(e.target.value)}
+                  style={{
+                    padding: '2px 8px',
+                    fontSize: '0.75rem',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    borderRadius: '4px',
+                    color: '#fff',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveParentPhone}
+                  style={{ padding: '2px 8px', fontSize: '0.7rem', background: '#38bdf8', border: 'none', borderRadius: '4px', color: '#070a12', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Save
+                </button>
+              </div>
+            )}
+          </div>
+          <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+            Shares your verified study hours, consistency streak, and parent coaching prompt without raw score pressure.
+          </p>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        {reportSentInfo && (
+          <div style={{ fontSize: '0.78rem', color: '#34d399', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <CheckCircle2 size={15} /> Dispatched to Parent Portal ({reportSentInfo.sentAt || "Just Now"})
+          </div>
+        )}
+        <button
+          onClick={handleSendReport}
+          disabled={sending}
+          className="btn-primary"
+          style={{
+            padding: '10px 18px',
+            fontSize: '0.85rem',
+            background: 'linear-gradient(135deg, #0284c7, #2563eb)'
+          }}
+        >
+          {sending ? 'Sending...' : 'Send Report to Parent 📲'}
+        </button>
+      </div>
     </div>
   );
 }
