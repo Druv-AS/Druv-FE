@@ -95,9 +95,12 @@ export default function AuthModal({ onLogin }) {
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok || (data && data.error)) {
-          const errText = (data && data.error) ? data.error : 'Authentication failed';
+          const errText = (data && data.error) ? data.error : (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
             setErrorMessage('Account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
+            return;
+          } else if (errText.includes('ACCOUNT_ALREADY_EXISTS')) {
+            setErrorMessage('An account already exists with this Mobile Number or User ID. Please switch to Sign In.');
             return;
           } else if (errText.includes('INVALID_PASSWORD')) {
             setErrorMessage('Incorrect password. Please verify your password and try again.');
@@ -145,9 +148,12 @@ export default function AuthModal({ onLogin }) {
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok || (data && data.error)) {
-          const errText = (data && data.error) ? data.error : 'Authentication failed';
+          const errText = (data && data.error) ? data.error : (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
             setErrorMessage('Parent account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
+            return;
+          } else if (errText.includes('ACCOUNT_ALREADY_EXISTS')) {
+            setErrorMessage('An account already exists with this Mobile Number or User ID. Please switch to Sign In.');
             return;
           } else if (errText.includes('INVALID_PASSWORD')) {
             setErrorMessage('Incorrect password. Please verify your password and try again.');
@@ -667,7 +673,7 @@ export default function AuthModal({ onLogin }) {
             }}
           >
             {isSubmitting ? (
-              'Authenticating...'
+              authMode === 'login' ? 'Signing In...' : 'Creating Account...'
             ) : authMode === 'login' ? (
               <>Sign In <ArrowRight size={16} /></>
             ) : (
