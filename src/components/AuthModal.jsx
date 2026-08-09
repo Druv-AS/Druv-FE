@@ -94,8 +94,9 @@ export default function AuthModal({ onLogin }) {
         
         const data = await res.json().catch(() => ({}));
 
-        if (!res.ok || (data && data.error)) {
-          const errText = (data && data.error) ? data.error : (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
+        if (!res.ok || (data && (data.error || data.message))) {
+          const rawErr = (data && (data.message || data.error)) ? (data.message || data.error) : null;
+          const errText = rawErr || (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
             setErrorMessage('Account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
             return;
@@ -147,8 +148,9 @@ export default function AuthModal({ onLogin }) {
 
         const data = await res.json().catch(() => ({}));
 
-        if (!res.ok || (data && data.error)) {
-          const errText = (data && data.error) ? data.error : (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
+        if (!res.ok || (data && (data.error || data.message))) {
+          const rawErr = (data && (data.message || data.error)) ? (data.message || data.error) : null;
+          const errText = rawErr || (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
           if (errText.includes('ACCOUNT_NOT_FOUND')) {
             setErrorMessage('Parent account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
             return;
