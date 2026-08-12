@@ -7,7 +7,31 @@
  * the server verified nothing.
  */
 
-const BASE_URL = (import.meta.env.VITE_BACKEND_URL || '').trim().replace(/\/$/, '');
+/**
+ * Normalises VITE_BACKEND_URL into an absolute origin, or an empty string to use the
+ * current origin (the local Vite proxy setup).
+ *
+ * A value without a scheme — `api.example.com` rather than `https://api.example.com` —
+ * is a relative path as far as fetch is concerned, so every request silently resolves
+ * against the frontend's own origin and hits the SPA rewrite instead of the API. That
+ * surfaces as a baffling 405 on POST, so repair it here and say so loudly.
+ */
+function resolveBaseUrl(raw) {
+  const value = (raw || '').trim().replace(/\/+$/, '');
+  if (!value) return '';
+
+  if (/^https?:\/\//i.test(value)) return value;
+
+  const repaired = `https://${value}`;
+  console.error(
+    `VITE_BACKEND_URL is missing a scheme ("${value}"). Without one it is treated as a ` +
+    `path relative to this site, so API calls never reach the backend. ` +
+    `Set it to "${repaired}" and redeploy — Vite inlines this value at build time.`,
+  );
+  return repaired;
+}
+
+const BASE_URL = resolveBaseUrl(import.meta.env.VITE_BACKEND_URL);
 
 /** Kept in memory, not localStorage: a token in storage outlives the tab and leaks via XSS. */
 let csrfToken = null;
