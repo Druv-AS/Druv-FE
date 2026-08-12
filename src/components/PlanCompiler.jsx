@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle2, Circle, RefreshCw, Zap, Sparkles, AlertCircle } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { apiFetch } from '../api';
+import { PanelLoading, PanelError } from './PanelState';
 
 export default function PlanCompiler() {
   const [blocks, setBlocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commitment, setCommitment] = useState("6:30 AM at my desk starting tomorrow");
   const [isRecompiling, setIsRecompiling] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchDailyPlan();
@@ -14,23 +16,11 @@ export default function PlanCompiler() {
 
   const fetchDailyPlan = () => {
     setLoading(true);
-    fetch(getApiUrl('/api/v1/plan/daily'))
-      .then((res) => res.json())
-      .then((data) => {
-        setBlocks(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        // Fallback demo data
-        setBlocks([
-          { id: 'B01', timeSlot: '06:30 AM - 08:00 AM', subject: 'Chemistry', topicName: 'Organic Reaction Mechanisms (Decay Halt)', activityType: 'RETRIEVAL_PRACTICE', durationMinutes: 90, weightagePercent: 8.0, isCompleted: true },
-          { id: 'B02', timeSlot: '09:30 AM - 11:30 AM', subject: 'Physics', topicName: 'Thermodynamics & Heat (Weak Spot Clearing)', activityType: 'NEW_CONCEPT', durationMinutes: 120, weightagePercent: 5.2, isCompleted: false },
-          { id: 'B03', timeSlot: '02:00 PM - 04:00 PM', subject: 'Biology', topicName: 'Genetics & Inheritance (High Weightage Practice)', activityType: 'RETRIEVAL_PRACTICE', durationMinutes: 120, weightagePercent: 11.5, isCompleted: false },
-          { id: 'B04', timeSlot: '06:00 PM - 07:30 PM', subject: 'Physics & Chem', topicName: 'Timed 20-Q Set + Silent Co-Study Block', activityType: 'TIMED_MOCK', durationMinutes: 90, weightagePercent: 6.5, isCompleted: false },
-          { id: 'B05', timeSlot: '09:30 PM - 10:00 PM', subject: 'General', topicName: "Evening Closeout & Tomorrow's Commitment Check", activityType: 'CLOSEOUT', durationMinutes: 30, weightagePercent: 0.0, isCompleted: false }
-        ]);
-        setLoading(false);
-      });
+    setError(null);
+    apiFetch('/api/v1/plan/daily')
+      .then((data) => setBlocks(data || []))
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
   };
 
   const toggleCompletion = (id) => {
@@ -101,7 +91,9 @@ export default function PlanCompiler() {
       {/* Timetable Blocks List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {loading ? (
-          <div style={{ padding: '40px', color: '#9ca3af', textAlign: 'center' }}>Compiling Feasible Timetable...</div>
+          <PanelLoading label="Compiling Feasible Timetable…" />
+        ) : error ? (
+          <PanelError error={error} onRetry={fetchDailyPlan} label="Daily plan unavailable." />
         ) : (
           blocks.map((block) => (
             <div

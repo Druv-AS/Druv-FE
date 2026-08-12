@@ -1,29 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ShieldAlert, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { useApiResource } from '../hooks/useApiResource';
+import { PanelLoading, PanelError } from './PanelState';
 
 export default function BacklogDebt() {
-  const [debt, setDebt] = useState(null);
+  const { data: debt, error, isLoading, reload } = useApiResource('/api/v1/readiness/backlog-debt');
 
-  useEffect(() => {
-    fetch(getApiUrl('/api/v1/readiness/backlog-debt'))
-      .then((res) => res.json())
-      .then((data) => setDebt(data))
-      .catch(() => {
-        setDebt({
-          debtHours: 6.5,
-          missedTopicsCount: 4,
-          interestAccruedHours: 1.2,
-          proposedForgivenessTopics: [
-            "Semiconductor Devices (2% weightage - saves 3.5 study hours)",
-            "Surface Chemistry (1.5% weightage - saves 2.0 study hours)"
-          ],
-          repaymentPlanSummary: "Repayment Plan: 45 extra focus minutes daily over 10 days. Low-yield topics forgiven with stated value trade-off."
-        });
-      });
-  }, []);
-
-  if (!debt) return <div style={{ padding: '40px', color: '#9ca3af' }}>Loading Debt Ledger...</div>;
+  if (isLoading) return <PanelLoading label="Loading Debt Ledger…" />;
+  if (error || !debt) {
+    return <PanelError error={error} onRetry={reload} label="Backlog Debt Ledger unavailable." />;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '800px', margin: '0 auto' }}>

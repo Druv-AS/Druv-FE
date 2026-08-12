@@ -4,7 +4,7 @@ import {
   HeartHandshake, Zap, Lock, Eye, EyeOff, CheckCircle2, 
   AlertCircle, LogIn, UserPlus, Sparkles, KeyRound 
 } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { apiFetch, ApiError } from '../api';
 
 export default function AuthModal({ onLogin }) {
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
@@ -29,7 +29,7 @@ export default function AuthModal({ onLogin }) {
   const getPasswordStrength = (pass) => {
     if (!pass) return { score: 0, label: '', color: 'transparent' };
     let score = 0;
-    if (pass.length >= 6) score += 25;
+    if (pass.length >= 8) score += 25;
     if (pass.length >= 10) score += 25;
     if (/[0-9]/.test(pass)) score += 25;
     if (/[^A-Za-z0-9]/.test(pass) || /[A-Z]/.test(pass)) score += 25;
@@ -77,114 +77,29 @@ export default function AuthModal({ onLogin }) {
     setIsSubmitting(true);
 
     try {
-      if (role === 'STUDENT') {
-        const res = await fetch(getApiUrl('/api/v1/auth/student'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: authMode,
-            name: trimmedName,
-            userId: trimmedUserId,
-            phoneNumber: trimmedPhone,
-            parentPhoneNumber: trimmedParentPhone,
-            examTarget: course,
-            password: password
-          })
-        });
-        
-        const data = await res.json().catch(() => ({}));
+      const isStudent = role === 'STUDENT';
+      const endpoint = isStudent ? '/api/v1/auth/student' : '/api/v1/auth/parent';
 
-        if (!res.ok || (data && (data.error || data.message))) {
-          const rawErr = (data && (data.message || data.error)) ? (data.message || data.error) : null;
-          const errText = rawErr || (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
-          if (errText.includes('ACCOUNT_NOT_FOUND')) {
-            setErrorMessage('Account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
-            return;
-          } else if (errText.includes('ACCOUNT_ALREADY_EXISTS')) {
-            setErrorMessage('An account already exists with this Mobile Number or User ID. Please switch to Sign In.');
-            return;
-          } else if (errText.includes('INVALID_PASSWORD')) {
-            setErrorMessage('Incorrect password. Please verify your password and try again.');
-            return;
-          } else {
-            setErrorMessage(errText.replace(/^[A-Z_]+:\s*/, ''));
-            return;
-          }
+      const body = {
+        mode: authMode,
+        userId: trimmedUserId,
+        phoneNumber: trimmedPhone,
+        password,
+      };
+      if (authMode === 'register') {
+        body.name = trimmedName;
+        if (isStudent) {
+          body.parentPhoneNumber = trimmedParentPhone;
+          body.examTarget = course;
         }
-
-        if (!data || !data.id) {
-          setErrorMessage('Invalid credentials or account does not exist in system.');
-          return;
-        }
-
-        const userData = {
-          id: data.id,
-          name: data.name || trimmedName,
-          userId: data.userId || trimmedUserId,
-          phone: data.phoneNumber || trimmedPhone,
-          parentPhone: data.parentPhoneNumber || trimmedParentPhone,
-          course: data.targetCourse || course,
-          role: 'STUDENT',
-          level: data.level || 12,
-          xp: data.xp || 3450,
-          streak: data.streakCount || 47,
-          isLoggedIn: true
-        };
-
-        localStorage.setItem('dhruv_user', JSON.stringify(userData));
-        onLogin(userData);
-      } else {
-        const res = await fetch(getApiUrl('/api/v1/auth/parent'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: authMode,
-            name: trimmedName,
-            userId: trimmedUserId,
-            phoneNumber: trimmedPhone,
-            password: password
-          })
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok || (data && (data.error || data.message))) {
-          const rawErr = (data && (data.message || data.error)) ? (data.message || data.error) : null;
-          const errText = rawErr || (authMode === 'login' ? 'Authentication failed' : 'Account creation failed');
-          if (errText.includes('ACCOUNT_NOT_FOUND')) {
-            setErrorMessage('Parent account not found with this Mobile Number or User ID. Please check your input or switch to Create Account.');
-            return;
-          } else if (errText.includes('ACCOUNT_ALREADY_EXISTS')) {
-            setErrorMessage('An account already exists with this Mobile Number or User ID. Please switch to Sign In.');
-            return;
-          } else if (errText.includes('INVALID_PASSWORD')) {
-            setErrorMessage('Incorrect password. Please verify your password and try again.');
-            return;
-          } else {
-            setErrorMessage(errText.replace(/^[A-Z_]+:\s*/, ''));
-            return;
-          }
-        }
-
-        if (!data || !data.id) {
-          setErrorMessage('Invalid credentials or account does not exist in system.');
-          return;
-        }
-
-        const userData = {
-          id: data.id,
-          name: data.name || trimmedName,
-          userId: data.userId || trimmedUserId,
-          phone: data.phoneNumber || trimmedPhone,
-          role: 'PARENT',
-          isLoggedIn: true
-        };
-
-        localStorage.setItem('dhruv_user', JSON.stringify(userData));
-        onLogin(userData);
       }
+
+      // The session cookie is set by this response; the returned object is profile data,
+      // not a credential. Nothing is written to localStorage.
+      const session = await apiFetch(endpoint, { method: 'POST', body });
+      onLogin(session);
     } catch (err) {
-      setErrorMessage('Unable to connect to authentication server. Please ensure the backend server is running.');
+      setErrorMessage(messageForError(err, authMode));
     } finally {
       setIsSubmitting(false);
     }
@@ -714,4 +629,36 @@ export default function AuthModal({ onLogin }) {
       </div>
     </div>
   );
+}
+
+/**
+ * Turns an API failure into user-facing copy, keyed on the server's stable `code`.
+ * The previous implementation matched substrings of the message text, so any rewording
+ * on the server silently broke the UI's branching.
+ */
+function messageForError(err, authMode) {
+  if (!(err instanceof ApiError)) {
+    return 'Something went wrong. Please try again.';
+  }
+
+  switch (err.code) {
+    case 'INVALID_CREDENTIALS':
+      return 'Incorrect mobile number, user ID, or password. If you have not registered yet, switch to Create Account.';
+    case 'ACCOUNT_ALREADY_EXISTS':
+      return 'An account already exists with this mobile number. Please switch to Sign In.';
+    case 'USER_ID_TAKEN':
+      return err.message;
+    case 'INVALID_PHONE':
+      return 'Enter a valid 10-digit Indian mobile number.';
+    case 'INVALID_PARENT_PHONE':
+      return 'Enter a valid 10-digit parent mobile number, or leave it blank.';
+    case 'VALIDATION_FAILED':
+      return err.fields ? Object.values(err.fields)[0] : err.message;
+    case 'RATE_LIMITED':
+      return 'Too many attempts. Please wait a few minutes before trying again.';
+    case 'NETWORK_ERROR':
+      return 'Cannot reach the Dhruv server. Check your connection and try again.';
+    default:
+      return err.message || (authMode === 'login' ? 'Sign in failed.' : 'Account creation failed.');
+  }
 }

@@ -1,25 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Play, Pause, VolumeX, ShieldCheck, Clock } from 'lucide-react';
+import { getWebSocketUrl } from '../api';
 
 export default function CoStudyRoom() {
-  const [activeCount, setActiveCount] = useState(142);
+  const [activeCount, setActiveCount] = useState(null);
   const [secondsRemaining, setSecondsRemaining] = useState(2400); // 40 minutes left
   const [isRunning, setIsRunning] = useState(true);
   const [wsConnected, setWsConnected] = useState(false);
 
   useEffect(() => {
-    // Try connecting to WebSocket backend (Railway / Vercel compatible)
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    let wsUrl;
-    if (backendUrl) {
-      const wsProtocol = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
-      const host = backendUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
-      wsUrl = `${wsProtocol}//${host}/ws/costudy`;
-    } else {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      wsUrl = `${protocol}//${window.location.host}/ws/costudy`;
-    }
-    const ws = new WebSocket(wsUrl);
+    // The URL is derived from the same base as the REST API so both follow one config.
+    const ws = new WebSocket(getWebSocketUrl('/ws/costudy'));
 
     ws.onopen = () => {
       setWsConnected(true);
@@ -29,24 +20,36 @@ export default function CoStudyRoom() {
     ws.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
-        if (payload.activeCount) {
+        // `> 0` would discard a genuine empty room; check the type instead.
+        if (typeof payload.activeCount === 'number') {
           setActiveCount(payload.activeCount);
         }
-      } catch (err) {}
+      } catch {
+        // Ignore frames that are not JSON, such as the PONG heartbeat reply.
+      }
     };
 
+    ws.onerror = () => setWsConnected(false);
     ws.onclose = () => setWsConnected(false);
 
-    // Fallback interval for local timer ticking
+    return () => {
+      // Only close an open socket; closing during CONNECTING logs a console error.
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
+    };
+  }, []);
+
+  // Separate timer effect that respects isRunning state
+  useEffect(() => {
+    if (!isRunning) return;
+
     const interval = setInterval(() => {
       setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 3000));
     }, 1000);
 
-    return () => {
-      ws.close();
-      clearInterval(interval);
-    };
-  }, []);
+    return () => clearInterval(interval);
+  }, [isRunning]);
 
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
@@ -95,7 +98,14 @@ export default function CoStudyRoom() {
         {/* Live Presence Count */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '8px', color: '#e5e7eb', fontSize: '0.92rem', fontWeight: 600 }}>
           <Users size={18} color="#38bdf8" />
-          <span><strong style={{ color: '#38bdf8' }}>{activeCount}</strong> NEET Aspirants Studying Right Now</span>
+          {activeCount === null ? (
+            <span style={{ color: '#94a3b8' }}>Connecting to the study room…</span>
+          ) : (
+            <span>
+              <strong style={{ color: '#38bdf8' }}>{activeCount}</strong>
+              {activeCount === 1 ? ' aspirant' : ' aspirants'} studying right now
+            </span>
+          )}
         </div>
 
         {/* Action Controls */}

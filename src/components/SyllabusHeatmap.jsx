@@ -1,35 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Filter, Layers, AlertCircle } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { useApiResource } from '../hooks/useApiResource';
+import { PanelLoading, PanelError } from './PanelState';
 
 export default function SyllabusHeatmap() {
-  const [tiles, setTiles] = useState([]);
+  const { data, error, isLoading, reload } = useApiResource('/api/v1/readiness/heatmap');
   const [selectedSubject, setSelectedSubject] = useState('ALL');
+  const tiles = data || [];
 
-  useEffect(() => {
-    fetch(getApiUrl('/api/v1/readiness/heatmap'))
-      .then((res) => res.json())
-      .then((data) => setTiles(data))
-      .catch(() => {
-        // Fallback demo data
-        setTiles([
-          { id: 'P01', subject: 'Physics', name: 'Thermodynamics & Heat', weightagePercent: 5.2, decayAdjustedMastery: 45.0, status: 'WEAK', questionsAvailable: 140 },
-          { id: 'P02', subject: 'Physics', name: 'Rotational Motion', weightagePercent: 4.8, decayAdjustedMastery: 52.0, status: 'DECAYING', questionsAvailable: 110 },
-          { id: 'P03', subject: 'Physics', name: 'Current Electricity', weightagePercent: 6.0, decayAdjustedMastery: 84.0, status: 'STABLE', questionsAvailable: 210 },
-          { id: 'P04', subject: 'Physics', name: 'Optics & Ray Optics', weightagePercent: 7.1, decayAdjustedMastery: 78.0, status: 'STABLE', questionsAvailable: 250 },
-          { id: 'P05', subject: 'Physics', name: 'Modern Physics', weightagePercent: 6.5, decayAdjustedMastery: 91.0, status: 'STABLE', questionsAvailable: 180 },
-          { id: 'C01', subject: 'Chemistry', name: 'Organic Reaction Mechanisms', weightagePercent: 8.0, decayAdjustedMastery: 38.0, status: 'WEAK', questionsAvailable: 320 },
-          { id: 'C02', subject: 'Chemistry', name: 'Chemical Equilibrium', weightagePercent: 4.5, decayAdjustedMastery: 62.0, status: 'DECAYING', questionsAvailable: 130 },
-          { id: 'C03', subject: 'Chemistry', name: 'Coordination Compounds', weightagePercent: 5.8, decayAdjustedMastery: 88.0, status: 'STABLE', questionsAvailable: 190 },
-          { id: 'C04', subject: 'Chemistry', name: 'Electrochemistry', weightagePercent: 4.2, decayAdjustedMastery: 75.0, status: 'STABLE', questionsAvailable: 150 },
-          { id: 'C05', subject: 'Chemistry', name: 'Biomolecules & Polymers', weightagePercent: 3.0, decayAdjustedMastery: 95.0, status: 'STABLE', questionsAvailable: 90 },
-          { id: 'B01', subject: 'Biology', name: 'Genetics & Inheritance', weightagePercent: 11.5, decayAdjustedMastery: 82.0, status: 'STABLE', questionsAvailable: 450 },
-          { id: 'B02', subject: 'Biology', name: 'Human Physiology', weightagePercent: 12.0, decayAdjustedMastery: 79.0, status: 'STABLE', questionsAvailable: 510 },
-          { id: 'B03', subject: 'Biology', name: 'Plant Physiology', weightagePercent: 7.5, decayAdjustedMastery: 58.0, status: 'DECAYING', questionsAvailable: 280 },
-          { id: 'B04', subject: 'Biology', name: 'Ecology & Environment', weightagePercent: 6.0, decayAdjustedMastery: 90.0, status: 'STABLE', questionsAvailable: 220 }
-        ]);
-      });
-  }, []);
+  if (isLoading) return <PanelLoading label="Loading Syllabus Heatmap…" />;
+  if (error) {
+    return <PanelError error={error} onRetry={reload} label="Syllabus Heatmap unavailable." />;
+  }
 
   const filteredTiles = selectedSubject === 'ALL'
     ? tiles
