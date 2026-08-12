@@ -1,36 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { TrendingUp, Target, Zap, ShieldCheck, Activity, ArrowUpRight } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { useApiResource } from '../hooks/useApiResource';
+import { PanelLoading, PanelError } from './PanelState';
 
 export default function EriWidget() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data, error, isLoading, reload } = useApiResource('/api/v1/readiness/eri');
 
-  useEffect(() => {
-    fetch(getApiUrl('/api/v1/readiness/eri'))
-      .then((res) => res.json())
-      .then((json) => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch(() => {
-        // Fallback demo state
-        setData({
-          overallEri: 71.2,
-          deltaWeekly: 2.4,
-          coverage: 68.5,
-          mastery: 74.0,
-          retention: 62.0,
-          examSkill: 70.5,
-          consistency: 88.0,
-          topLeverageAction: "Solve 20 timed Organic Chemistry PYQs to halt decay in Reaction Mechanisms.",
-          statusMessage: "Your consistency is driving ERI growth (+2.4 points). Retention in Organic Chemistry needs revision today."
-        });
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div style={{ padding: '40px', color: '#9ca3af' }}>Loading Readiness Ledger...</div>;
+  if (isLoading) return <PanelLoading label="Loading Readiness Ledger…" />;
+  if (error || !data) {
+    return <PanelError error={error} onRetry={reload} label="Readiness Ledger unavailable." />;
+  }
 
   const components = [
     { name: 'Coverage', weight: '20%', value: data.coverage, source: 'Practice + declared study', speed: 'Slow', color: '#38bdf8', icon: Target },

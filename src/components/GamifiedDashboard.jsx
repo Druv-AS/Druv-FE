@@ -3,16 +3,16 @@ import {
   Award, Flame, Play, Clock, ArrowUpRight, Zap, Target, 
   Users, CheckCircle2, Check, ShieldAlert, ArrowRight, Activity, Stethoscope, Cpu, GraduationCap, Sparkles, Shield, RefreshCw
 } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { apiFetch } from '../api';
 
 import neetDoctorImg from '../assets/neet_doctor.png';
 import jeeEngineerImg from '../assets/jee_engineer.png';
 
 export default function GamifiedDashboard({ user, setActiveTab }) {
   const [selectedCareer, setSelectedCareer] = useState('NEET'); // 'NEET' or 'JEE'
-  const [xp, setXp] = useState(user?.xp || 3450);
-  const [level, setLevel] = useState(user?.level || 12);
-  const [streak, setStreak] = useState(user?.streak || 47);
+  const [xp, setXp] = useState(user?.xp ?? 0);
+  const [level, setLevel] = useState(user?.level ?? 1);
+  const [streak, setStreak] = useState(user?.streakCount ?? 0);
   const [freezeBuffer, setFreezeBuffer] = useState(1);
   const [checkedInToday, setCheckedInToday] = useState(true);
   const [completedQuests, setCompletedQuests] = useState([]);
@@ -134,12 +134,12 @@ export default function GamifiedDashboard({ user, setActiveTab }) {
             <div style={{ textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: '#f8fafc' }}>
-                  Welcome back, {user?.name || 'Aarav Sharma'} 👋
+                  Welcome back, {user?.name} 👋
                 </h2>
                 <span className="badge badge-green">Level {level} Scholar</span>
               </div>
               <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '2px' }}>
-                Target: <strong>{user?.course || 'NEET 2027 Repeater'}</strong> • Student Readiness Engine
+                Target: <strong>{user?.targetCourse}</strong> • Student Readiness Engine
               </p>
             </div>
           </div>
@@ -506,32 +506,38 @@ export default function GamifiedDashboard({ user, setActiveTab }) {
 function SendReportCard({ user }) {
   const [sending, setSending] = useState(false);
   const [reportSentInfo, setReportSentInfo] = useState(null);
-  const [parentPhoneInput, setParentPhoneInput] = useState(user?.parentPhone || "");
+  const [parentPhoneInput, setParentPhoneInput] = useState(user?.parentPhoneNumber || "");
   const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   const handleSendReport = async () => {
     setSending(true);
+    setActionError(null);
     try {
-      const studentId = user?.userId || user?.phone || "";
-      const res = await fetch(getApiUrl(`/api/v1/student/send-report?studentPhoneOrId=${encodeURIComponent(studentId)}`), {
-        method: 'POST'
-      });
-      const data = await res.json();
+      // No identifier is sent: the server acts on the signed-in student's own record.
+      const data = await apiFetch('/api/v1/student/send-report', { method: 'POST' });
       setReportSentInfo(data);
     } catch (err) {
-      setReportSentInfo({
-        sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
+      // Report the failure. Previously this fabricated a success timestamp, telling the
+      // student their parent had received a report that was never sent.
+      setActionError(err.message);
     } finally {
       setSending(false);
     }
   };
 
-  const handleSaveParentPhone = () => {
-    setIsEditingPhone(false);
-    if (user) {
-      const updatedUser = { ...user, parentPhone: parentPhoneInput };
-      localStorage.setItem('dhruv_user', JSON.stringify(updatedUser));
+  const handleSaveParentPhone = async () => {
+    setActionError(null);
+    try {
+      // Persisted server-side: this nomination is what authorises the parent to link.
+      const data = await apiFetch('/api/v1/student/parent-contact', {
+        method: 'PUT',
+        body: { parentPhoneNumber: parentPhoneInput.trim() },
+      });
+      setParentPhoneInput(data?.parentPhoneNumber || '');
+      setIsEditingPhone(false);
+    } catch (err) {
+      setActionError(err.message);
     }
   };
 
@@ -609,9 +615,14 @@ function SendReportCard({ user }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        {reportSentInfo && (
+        {reportSentInfo?.sentAt && (
           <div style={{ fontSize: '0.78rem', color: '#34d399', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <CheckCircle2 size={15} /> Dispatched to Parent Portal ({reportSentInfo.sentAt || "Just Now"})
+            <CheckCircle2 size={15} /> Dispatched to Parent Portal ({reportSentInfo.sentAt})
+          </div>
+        )}
+        {actionError && (
+          <div role="alert" style={{ fontSize: '0.78rem', color: '#f87171', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <ShieldAlert size={15} /> {actionError}
           </div>
         )}
         <button

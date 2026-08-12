@@ -1,29 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { MessageSquare, HeartHandshake, Eye, CheckCircle2, AlertCircle } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { useApiResource } from '../hooks/useApiResource';
+import { PanelLoading, PanelError } from './PanelState';
 
 export default function ParentReport() {
-  const [report, setReport] = useState(null);
+  const { data: report, error, isLoading, reload } = useApiResource('/api/v1/readiness/parent-report');
 
-  useEffect(() => {
-    fetch(getApiUrl('/api/v1/readiness/parent-report'))
-      .then((res) => res.json())
-      .then((data) => setReport(data))
-      .catch(() => {
-        setReport({
-          studentName: "Aarav Sharma",
-          examTarget: "NEET 2027 Repeater",
-          verifiedStudyMinutes: 480,
-          effortRating: "Consistent & High Effort",
-          weeklyWin: "Showed up 6 out of 7 days; completed 140 verified PYQs in Physics & Chemistry.",
-          supportAsk: "Chemistry Organic Revision & Sunday Mock Focus",
-          scriptWhatToSay: "This week, ask Aarav about his Chemistry revision. He logged 8 hours of verified practice.",
-          scriptWhatNotToSay: "Don't ask about his mock test raw score; he is actively reviewing errors with the Error DNA tool."
-        });
-      });
-  }, []);
-
-  if (!report) return <div style={{ padding: '40px', color: '#9ca3af' }}>Loading Parent Report...</div>;
+  if (isLoading) return <PanelLoading label="Loading Parent Report…" />;
+  if (error || !report) {
+    return <PanelError error={error} onRetry={reload} label="Parent Report unavailable." />;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '750px', margin: '0 auto' }}>

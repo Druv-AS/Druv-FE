@@ -3,7 +3,7 @@ import {
   Sparkles, Flame, Play, Clock, ArrowUpRight, Zap, Target, 
   Users, CheckCircle2, ShieldAlert, ArrowRight, Activity, Stethoscope, Cpu, GraduationCap
 } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { useApiResource } from '../hooks/useApiResource';
 
 import neetDoctorImg from '../assets/neet_doctor.png';
 import jeeEngineerImg from '../assets/jee_engineer.png';
@@ -11,25 +11,9 @@ import jeeEngineerImg from '../assets/jee_engineer.png';
 export default function DailyDashboard({ setActiveTab }) {
   const [selectedCareer, setSelectedCareer] = useState('NEET'); // 'NEET' or 'JEE'
   const [checkedIn, setCheckedIn] = useState(false);
-  const [eriData, setEriData] = useState(null);
-
-  useEffect(() => {
-    fetch(getApiUrl('/api/v1/readiness/eri'))
-      .then((res) => res.json())
-      .then((data) => setEriData(data))
-      .catch(() => {
-        setEriData({
-          overallEri: 71.2,
-          deltaWeekly: 2.4,
-          coverage: 68.5,
-          mastery: 74.0,
-          retention: 62.0,
-          examSkill: 70.5,
-          consistency: 88.0,
-          topLeverageAction: "Solve 20 timed PYQs to halt decay in core concepts."
-        });
-      });
-  }, []);
+  // A dashboard tile: if the figure cannot be loaded the tile hides itself rather than
+  // showing an invented readiness score.
+  const { data: eriData } = useApiResource('/api/v1/readiness/eri');
 
   const careerConfig = {
     NEET: {

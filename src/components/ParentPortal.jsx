@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, HeartHandshake, CheckCircle2, Clock, Target, Award, UserPlus, GraduationCap, Zap, Activity, ChevronRight } from 'lucide-react';
-import { getApiUrl } from '../api';
+import { ShieldCheck, HeartHandshake, CheckCircle2, Clock, Target, Award, UserPlus, GraduationCap, Zap, Activity, ChevronRight, RefreshCw } from 'lucide-react';
+import { apiFetch } from '../api';
+import { PanelLoading, PanelError } from './PanelState';
 
 export default function ParentPortal({ user }) {
   const [studentsList, setStudentsList] = useState([]);
@@ -9,85 +10,23 @@ export default function ParentPortal({ user }) {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkInput, setLinkInput] = useState('');
   const [linkMessage, setLinkMessage] = useState(null);
+  const [error, setError] = useState(null);
 
-  const parentPhone = user?.phone || '+919876543211';
+  // Display only. The server resolves the parent from the session; it no longer accepts
+  // a phone number from the client, which is what allowed any caller to read any
+  // parent's children.
+  const parentPhone = user?.phoneNumber || '';
 
   const fetchStudents = () => {
     setLoading(true);
-    fetch(getApiUrl(`/api/v1/parent/students?parentPhone=${encodeURIComponent(parentPhone)}`))
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setStudentsList(data);
-        } else {
-          // Fallback multi-student demo data
-          setStudentsList([
-            {
-              studentId: '1',
-              studentUserId: 'aarav_2027',
-              studentName: 'Aarav Sharma',
-              examTarget: 'NEET 2027 Repeater',
-              overallEri: 74.5,
-              verifiedStudyMinutes: 480,
-              effortRating: 'Consistent & High Effort',
-              weeklyWin: 'Showed up 6 out of 7 days; completed 140 verified PYQs in Physics & Chemistry.',
-              supportAsk: 'Chemistry Organic Revision',
-              scriptWhatToSay: 'This week, ask Aarav about his Chemistry revision. He logged 8 hours of verified practice.',
-              scriptWhatNotToSay: 'Don\'t ask about his mock test raw score; he is actively reviewing errors with the Error DNA tool.',
-              sentToParent: true,
-              sentAt: 'Aug 08, 2026 14:30'
-            },
-            {
-              studentId: '2',
-              studentUserId: 'ananya_2027',
-              studentName: 'Ananya Sharma',
-              examTarget: 'JEE Advanced 2027',
-              overallEri: 81.2,
-              verifiedStudyMinutes: 520,
-              effortRating: 'Top Performer (Exceeding Goal)',
-              weeklyWin: 'Mastered Rotational Mechanics & Integral Calculus; solved 185 Advanced PYQs with 84% accuracy.',
-              supportAsk: 'Mathematics Drills & Speed Drills',
-              scriptWhatToSay: 'Praise Ananya for solving 185 Advanced Level Mathematics problems cleanly this week.',
-              scriptWhatNotToSay: 'Avoid comparing her weekly schedule with standard school hours; her self-paced blocks are working.',
-              sentToParent: true,
-              sentAt: 'Aug 08, 2026 12:15'
-            }
-          ]);
-        }
-      })
-      .catch(() => {
-        setStudentsList([
-          {
-            studentId: '1',
-            studentUserId: 'aarav_2027',
-            studentName: 'Aarav Sharma',
-            examTarget: 'NEET 2027 Repeater',
-            overallEri: 74.5,
-            verifiedStudyMinutes: 480,
-            effortRating: 'Consistent & High Effort',
-            weeklyWin: 'Showed up 6 out of 7 days; completed 140 verified PYQs in Physics & Chemistry.',
-            supportAsk: 'Chemistry Organic Revision',
-            scriptWhatToSay: 'This week, ask Aarav about his Chemistry revision. He logged 8 hours of verified practice.',
-            scriptWhatNotToSay: 'Don\'t ask about his mock test raw score; he is actively reviewing errors with the Error DNA tool.',
-            sentToParent: true,
-            sentAt: 'Aug 08, 2026 14:30'
-          },
-          {
-            studentId: '2',
-            studentUserId: 'ananya_2027',
-            studentName: 'Ananya Sharma',
-            examTarget: 'JEE Advanced 2027',
-            overallEri: 81.2,
-            verifiedStudyMinutes: 520,
-            effortRating: 'Top Performer (Exceeding Goal)',
-            weeklyWin: 'Mastered Rotational Mechanics & Integral Calculus; solved 185 Advanced PYQs with 84% accuracy.',
-            supportAsk: 'Mathematics Drills & Speed Drills',
-            scriptWhatToSay: 'Praise Ananya for solving 185 Advanced Level Mathematics problems cleanly this week.',
-            scriptWhatNotToSay: 'Avoid comparing her weekly schedule with standard school hours; her self-paced blocks are working.',
-            sentToParent: true,
-            sentAt: 'Aug 08, 2026 12:15'
-          }
-        ]);
+    setError(null);
+    apiFetch('/api/v1/parent/students')
+      .then((data) => setStudentsList(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        // No demo fallback: showing invented children to a real parent is worse than
+        // showing an error.
+        setError(err);
+        setStudentsList([]);
       })
       .finally(() => setLoading(false));
   };
@@ -98,40 +37,32 @@ export default function ParentPortal({ user }) {
 
   const handleLinkStudent = async (e) => {
     e.preventDefault();
-    if (!linkInput.trim()) return;
+    const identifier = linkInput.trim();
+    if (!identifier) return;
 
+    setLinkMessage(null);
     try {
-      const res = await fetch(getApiUrl('/api/v1/parent/link-student'), {
+      // parentPhoneNumber is deliberately not sent: the server uses the session.
+      const data = await apiFetch('/api/v1/parent/link-student', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          parentPhoneNumber: parentPhone,
-          studentIdentifier: linkInput.trim()
-        })
+        body: { studentIdentifier: identifier },
       });
-      const data = await res.json();
-      if (data.success) {
-        setLinkMessage({ type: 'success', text: data.message });
-        setTimeout(() => {
-          setShowLinkModal(false);
-          setLinkInput('');
-          setLinkMessage(null);
-          fetchStudents();
-        }, 1200);
-      } else {
-        setLinkMessage({ type: 'error', text: data.message });
-      }
-    } catch (err) {
-      setLinkMessage({ type: 'error', text: 'Connection issue. Linked demo student.' });
+      setLinkMessage({ type: 'success', text: data?.message || 'Student linked.' });
       setTimeout(() => {
         setShowLinkModal(false);
         setLinkInput('');
         setLinkMessage(null);
+        fetchStudents();
       }, 1200);
+    } catch (err) {
+      setLinkMessage({ type: 'error', text: err.message });
     }
   };
 
-  if (loading) return <div style={{ padding: '40px', color: '#94a3b8', textAlign: 'center' }}>Loading Parent Transparency Portal...</div>;
+  if (loading) return <PanelLoading label="Loading Parent Transparency Portal…" />;
+  if (error) {
+    return <PanelError error={error} onRetry={fetchStudents} label="Could not load your children's reports." />;
+  }
 
   const activeStudent = studentsList[selectedStudentIndex] || studentsList[0];
 
@@ -146,7 +77,7 @@ export default function ParentPortal({ user }) {
               <span className="badge badge-green">
                 <ShieldCheck size={14} /> Parent Transparency Portal
               </span>
-              <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Parent: {user?.name || "Rajesh Sharma"} ({parentPhone})</span>
+              <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Parent: {user?.name}{parentPhone ? ` (${parentPhone})` : ''}</span>
             </div>
             <h2 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-heading)', color: '#f8fafc', fontWeight: 800 }}>
               Multi-Student Progress Monitor
@@ -223,7 +154,7 @@ export default function ParentPortal({ user }) {
                     {st.studentName}
                   </span>
                   <span className="badge badge-indigo" style={{ fontSize: '0.72rem' }}>
-                    ERI {st.overallEri || 74.5}
+                    ERI {(st.overallEri ?? 0).toFixed(1)}
                   </span>
                 </div>
                 <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
@@ -239,6 +170,19 @@ export default function ParentPortal({ user }) {
       </div>
 
       {/* Selected Student Active Report Card */}
+      {!activeStudent && (
+        <div className="glass-card" style={{ padding: '32px 26px', textAlign: 'center', color: '#94a3b8' }}>
+          <GraduationCap size={26} color="#34d399" style={{ marginBottom: '10px' }} />
+          <h3 style={{ color: '#f8fafc', fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>
+            No students linked yet
+          </h3>
+          <p style={{ fontSize: '0.85rem', maxWidth: '460px', margin: '0 auto' }}>
+            Use “Link Student” above and enter your child's Dhruv User ID or mobile number.
+            They must have listed your mobile number as their parent contact when registering.
+          </p>
+        </div>
+      )}
+
       {activeStudent && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
@@ -275,11 +219,13 @@ export default function ParentPortal({ user }) {
                 <Zap size={16} /> Exam Readiness Index (ERI)
               </div>
               <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8', fontFamily: 'var(--font-heading)', marginTop: '4px' }}>
-                {activeStudent.overallEri || 74.5} <span style={{ fontSize: '1rem', color: '#94a3b8' }}>/ 100</span>
+                {(activeStudent.overallEri ?? 0).toFixed(1)} <span style={{ fontSize: '1rem', color: '#94a3b8' }}>/ 100</span>
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#34d399', marginTop: '4px', fontWeight: 600 }}>
-                ↑ +2.4 pts growth this week
-              </div>
+              {typeof activeStudent.deltaWeekly === 'number' && (
+                <div style={{ fontSize: '0.78rem', color: '#34d399', marginTop: '4px', fontWeight: 600 }}>
+                  ↑ +{activeStudent.deltaWeekly.toFixed(1)} pts growth this week
+                </div>
+              )}
             </div>
 
             {/* Study Time */}
@@ -288,10 +234,10 @@ export default function ParentPortal({ user }) {
                 <Clock size={16} /> Verified Focus Time
               </div>
               <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#34d399', fontFamily: 'var(--font-heading)', marginTop: '4px' }}>
-                {Math.floor((activeStudent.verifiedStudyMinutes || 480) / 60)}.0 Hours
+                {((activeStudent.verifiedStudyMinutes ?? 0) / 60).toFixed(1)} Hours
               </div>
               <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '4px' }}>
-                {activeStudent.verifiedStudyMinutes || 480} mins logged in timed focus blocks
+                {activeStudent.verifiedStudyMinutes ?? 0} mins logged in timed focus blocks
               </div>
             </div>
 
